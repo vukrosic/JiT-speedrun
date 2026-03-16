@@ -477,3 +477,16 @@ When you are first activated on a new repo, do exactly this:
 8. **Start the loop** (Section 8) — and never stop
 
 **The clock is ticking. Begin.**
+
+---
+
+## 14. GPU Memory Utilization — CRITICAL
+
+**You MUST use at least 80% of available GPU memory.** Running experiments at 30-40% VRAM utilization is unacceptable — it wastes hardware and makes experiments take far longer than necessary.
+
+### Rules
+1. **Before starting any experiment batch**, run a VRAM calibration: test increasing batch sizes (or image resolutions) until you find the maximum that fits without OOM. Leave ~10-15% headroom for safety.
+2. **Prefer increasing image resolution** over batch size when possible — training at the target resolution produces more transferable results than training at a smaller proxy resolution with a larger batch.
+3. **Log the VRAM utilization** in `optimization/recon.md` for each configuration you test.
+4. **If VRAM usage drops below 70%**, stop and reconfigure before continuing. You are wasting compute.
+5. When an experiment needs less memory (e.g., smaller model variant, dropout reducing activations), **increase batch size to compensate** so GPU utilization stays high.

@@ -8,10 +8,8 @@
       "blr": "1e-4"
     },
     "priority": 1,
-    "status": "done",
-    "batch": 1,
-    "result": 0.1565,
-    "time_s": 459.6
+    "status": "pending",
+    "batch": 1
   },
   {
     "exp_id": "lr_2e-4",
@@ -22,10 +20,8 @@
       "blr": "2e-4"
     },
     "priority": 1,
-    "status": "done",
-    "batch": 1,
-    "result": 0.1974,
-    "time_s": 159.2
+    "status": "pending",
+    "batch": 1
   },
   {
     "exp_id": "lr_5e-4",
@@ -36,8 +32,10 @@
       "blr": "5e-4"
     },
     "priority": 1,
-    "status": "running",
-    "batch": 1
+    "status": "failed",
+    "batch": 1,
+    "result": null,
+    "time_s": 3.2
   },
   {
     "exp_id": "lr_1e-3",
@@ -72,8 +70,10 @@
       "blr": "1e-5"
     },
     "priority": 2,
-    "status": "pending",
-    "batch": 1
+    "status": "failed",
+    "batch": 1,
+    "result": null,
+    "time_s": 25.6
   },
   {
     "exp_id": "cosine_schedule",
@@ -84,8 +84,10 @@
       "lr_schedule": "cosine"
     },
     "priority": 1,
-    "status": "pending",
-    "batch": 1
+    "status": "failed",
+    "batch": 1,
+    "result": null,
+    "time_s": 5.7
   },
   {
     "exp_id": "cosine_lr1e-4",
@@ -313,8 +315,9 @@
       "blr": "5e-5"
     },
     "priority": 2,
-    "status": "pending",
-    "batch": 1
+    "status": "skipped",
+    "batch": 1,
+    "notes": "OOM at img_size=256"
   },
   {
     "exp_id": "t_eps_0.01",

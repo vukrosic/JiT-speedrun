@@ -13,7 +13,7 @@ LOG_FILE = "optimization/experiment_log.md"
 # Base config that all experiments inherit from (matching current best baseline)
 BASE_ARGS = [
     "--model", "JiT-B/16",
-    "--img_size", "128",
+    "--img_size", "256",
     "--noise_scale", "1.0",
     "--batch_size", "64",
     "--blr", "5e-5",
@@ -48,7 +48,10 @@ def run_experiment(exp):
             else:
                 args.extend([key, str(v)])
 
-    cmd = ["torchrun", "--nproc_per_node=1", "--nnodes=1", "--node_rank=0", "main_jit.py"] + args
+    # Use unique port per experiment to avoid conflicts
+    import random
+    port = 29500 + random.randint(100, 9999)
+    cmd = ["torchrun", "--nproc_per_node=1", "--nnodes=1", "--node_rank=0", f"--master_port={port}", "main_jit.py"] + args
 
     print(f"\n{'='*60}")
     print(f"Running: {exp_id}")
@@ -66,12 +69,11 @@ def run_experiment(exp):
     with open(f"{output_dir}/train.log", "w") as f:
         f.write(output)
 
-    # Extract final loss
+    # Extract final loss from last epoch's last iteration
     final_loss = None
-    # Look for last epoch's final iteration
     for line in output.split("\n"):
-        # Match patterns like "loss: 0.1779 (0.1793)" — we want the global avg in parens
-        m = re.search(r'Epoch: \[\d+\].*146/147.*loss: [\d.]+ \(([\d.]+)\)', line)
+        # Match the last iteration of any epoch: "Epoch: [N]  [M/M]  ... loss: X.XXXX (Y.YYYY)"
+        m = re.search(r'Epoch: \[\d+\].*\]\s+eta: 0:00:00.*loss: [\d.]+ \(([\d.]+)\)', line)
         if m:
             final_loss = float(m.group(1))
 

@@ -12,7 +12,7 @@ mkdir -p "${OUTPUT_DIR}"
 torchrun --nproc_per_node=1 --nnodes=1 --node_rank=0 \
     main_jit.py \
     --model JiT-B/16 \
-    --img_size 128 --noise_scale 1.0 \
+    --img_size 256 --noise_scale 1.0 \
     --batch_size 64 --blr 5e-5 \
     --epochs 10 --warmup_epochs 1 \
     --class_num 10 \
