@@ -1,0 +1,367 @@
+[
+  {
+    "exp_id": "lr_1e-4",
+    "hypothesis": "Higher base LR may converge faster",
+    "category": "exploitation",
+    "parent_exp": "baseline",
+    "changes": {
+      "blr": "1e-4"
+    },
+    "priority": 1,
+    "status": "done",
+    "batch": 1,
+    "result": 0.1565,
+    "time_s": 459.6
+  },
+  {
+    "exp_id": "lr_2e-4",
+    "hypothesis": "Even higher LR for faster convergence",
+    "category": "exploitation",
+    "parent_exp": "baseline",
+    "changes": {
+      "blr": "2e-4"
+    },
+    "priority": 1,
+    "status": "done",
+    "batch": 1,
+    "result": 0.1974,
+    "time_s": 159.2
+  },
+  {
+    "exp_id": "lr_5e-4",
+    "hypothesis": "Aggressive LR might work with warmup",
+    "category": "exploitation",
+    "parent_exp": "baseline",
+    "changes": {
+      "blr": "5e-4"
+    },
+    "priority": 1,
+    "status": "running",
+    "batch": 1
+  },
+  {
+    "exp_id": "lr_1e-3",
+    "hypothesis": "Very aggressive LR",
+    "category": "exploitation",
+    "parent_exp": "baseline",
+    "changes": {
+      "blr": "1e-3"
+    },
+    "priority": 1,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "lr_2e-5",
+    "hypothesis": "Lower LR might be more stable",
+    "category": "exploitation",
+    "parent_exp": "baseline",
+    "changes": {
+      "blr": "2e-5"
+    },
+    "priority": 2,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "lr_1e-5",
+    "hypothesis": "Conservative LR",
+    "category": "exploitation",
+    "parent_exp": "baseline",
+    "changes": {
+      "blr": "1e-5"
+    },
+    "priority": 2,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "cosine_schedule",
+    "hypothesis": "Cosine schedule may improve late training",
+    "category": "exploitation",
+    "parent_exp": "baseline",
+    "changes": {
+      "lr_schedule": "cosine"
+    },
+    "priority": 1,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "cosine_lr1e-4",
+    "hypothesis": "Cosine + higher LR",
+    "category": "exploitation",
+    "parent_exp": "baseline",
+    "changes": {
+      "lr_schedule": "cosine",
+      "blr": "1e-4"
+    },
+    "priority": 1,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "warmup_0",
+    "hypothesis": "No warmup \u2014 constant from start",
+    "category": "exploitation",
+    "parent_exp": "baseline",
+    "changes": {
+      "warmup_epochs": "0"
+    },
+    "priority": 2,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "warmup_3",
+    "hypothesis": "Longer warmup for more stable training",
+    "category": "exploitation",
+    "parent_exp": "baseline",
+    "changes": {
+      "warmup_epochs": "3"
+    },
+    "priority": 2,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "wd_0.01",
+    "hypothesis": "Small weight decay as regularizer",
+    "category": "exploitation",
+    "parent_exp": "baseline",
+    "changes": {
+      "weight_decay": "0.01"
+    },
+    "priority": 2,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "wd_0.05",
+    "hypothesis": "Moderate weight decay",
+    "category": "exploitation",
+    "parent_exp": "baseline",
+    "changes": {
+      "weight_decay": "0.05"
+    },
+    "priority": 2,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "wd_0.1",
+    "hypothesis": "Strong weight decay",
+    "category": "exploitation",
+    "parent_exp": "baseline",
+    "changes": {
+      "weight_decay": "0.1"
+    },
+    "priority": 2,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "Pmean_-1.2",
+    "hypothesis": "Shift noise schedule toward more noise \u2014 harder denoising",
+    "category": "exploitation",
+    "parent_exp": "baseline",
+    "changes": {
+      "P_mean": "-1.2"
+    },
+    "priority": 1,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "Pmean_-0.4",
+    "hypothesis": "Shift noise schedule toward less noise",
+    "category": "exploitation",
+    "parent_exp": "baseline",
+    "changes": {
+      "P_mean": "-0.4"
+    },
+    "priority": 1,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "Pmean_0.0",
+    "hypothesis": "Centered noise schedule",
+    "category": "exploitation",
+    "parent_exp": "baseline",
+    "changes": {
+      "P_mean": "0.0"
+    },
+    "priority": 1,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "Pstd_0.4",
+    "hypothesis": "Narrower noise distribution \u2014 focus on medium noise",
+    "category": "exploitation",
+    "parent_exp": "baseline",
+    "changes": {
+      "P_std": "0.4"
+    },
+    "priority": 2,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "Pstd_1.2",
+    "hypothesis": "Wider noise distribution \u2014 more diverse training",
+    "category": "exploitation",
+    "parent_exp": "baseline",
+    "changes": {
+      "P_std": "1.2"
+    },
+    "priority": 2,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "grad_clip_1.0",
+    "hypothesis": "Gradient clipping may stabilize training",
+    "category": "exploration",
+    "parent_exp": "baseline",
+    "changes": {
+      "grad_clip": "1.0"
+    },
+    "priority": 2,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "grad_clip_0.5",
+    "hypothesis": "Tighter gradient clipping",
+    "category": "exploration",
+    "parent_exp": "baseline",
+    "changes": {
+      "grad_clip": "0.5"
+    },
+    "priority": 2,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "beta2_0.99",
+    "hypothesis": "Higher beta2 for smoother Adam updates",
+    "category": "exploration",
+    "parent_exp": "baseline",
+    "changes": {},
+    "priority": 2,
+    "status": "skipped",
+    "batch": 1,
+    "notes": "needs code change - skip for now"
+  },
+  {
+    "exp_id": "attn_drop_0.05",
+    "hypothesis": "Light attention dropout as regularizer",
+    "category": "exploration",
+    "parent_exp": "baseline",
+    "changes": {
+      "attn_dropout": "0.05"
+    },
+    "priority": 2,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "proj_drop_0.1",
+    "hypothesis": "Projection dropout like JiT-H config",
+    "category": "exploration",
+    "parent_exp": "baseline",
+    "changes": {
+      "proj_dropout": "0.1"
+    },
+    "priority": 2,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "label_drop_0.05",
+    "hypothesis": "Less CFG dropout \u2014 more supervised signal",
+    "category": "exploration",
+    "parent_exp": "baseline",
+    "changes": {
+      "label_drop_prob": "0.05"
+    },
+    "priority": 2,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "label_drop_0.2",
+    "hypothesis": "More CFG dropout \u2014 stronger unconditional learning",
+    "category": "exploration",
+    "parent_exp": "baseline",
+    "changes": {
+      "label_drop_prob": "0.2"
+    },
+    "priority": 2,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "batch128_lr_scaled",
+    "hypothesis": "Larger batch with scaled LR",
+    "category": "exploration",
+    "parent_exp": "baseline",
+    "changes": {
+      "batch_size": "128",
+      "blr": "5e-5"
+    },
+    "priority": 2,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "t_eps_0.01",
+    "hypothesis": "Smaller t_eps \u2014 less clipping near t=1",
+    "category": "exploration",
+    "parent_exp": "baseline",
+    "changes": {
+      "t_eps": "0.01"
+    },
+    "priority": 3,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "t_eps_0.1",
+    "hypothesis": "Larger t_eps \u2014 more conservative near t=1",
+    "category": "exploration",
+    "parent_exp": "baseline",
+    "changes": {
+      "t_eps": "0.1"
+    },
+    "priority": 3,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "noise_scale_0.5",
+    "hypothesis": "Lower noise scale at init",
+    "category": "exploration",
+    "parent_exp": "baseline",
+    "changes": {
+      "noise_scale": "0.5"
+    },
+    "priority": 3,
+    "status": "pending",
+    "batch": 1
+  },
+  {
+    "exp_id": "noise_scale_1.5",
+    "hypothesis": "Higher noise scale at init",
+    "category": "exploration",
+    "parent_exp": "baseline",
+    "changes": {
+      "noise_scale": "1.5"
+    },
+    "priority": 3,
+    "status": "pending",
+    "batch": 1
+  }
+]

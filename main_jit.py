@@ -46,6 +46,8 @@ def get_args_parser():
                         help='Learning rate schedule')
     parser.add_argument('--weight_decay', type=float, default=0.0,
                         help='Weight decay (default: 0.0)')
+    parser.add_argument('--grad_clip', type=float, default=0.0,
+                        help='Gradient clipping max norm (0 = disabled)')
     parser.add_argument('--ema_decay1', type=float, default=0.9999,
                         help='The first ema to track. Use the first ema for sampling by default.')
     parser.add_argument('--ema_decay2', type=float, default=0.9996,

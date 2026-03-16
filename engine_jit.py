@@ -44,6 +44,8 @@ def train_one_epoch(model, model_without_ddp, data_loader, optimizer, device, ep
 
         optimizer.zero_grad()
         loss.backward()
+        if args.grad_clip > 0:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip)
         optimizer.step()
 
         torch.cuda.synchronize()
