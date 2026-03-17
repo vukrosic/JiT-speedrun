@@ -136,3 +136,7 @@ Use ≥80% of available VRAM. Prefer increasing resolution over batch size. If u
 ## 13. Banlist
 
 Track failed experiments in plan.md. Don't re-run banned experiments or minor variations of them. Un-ban only if the underlying baseline changes fundamentally.
+
+---
+
+Check if plan.md, leaderboard.md, experiment_log.md, queue.json, insights.md follow these instructions and structure, if not, update them according to these rules.
