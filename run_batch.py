@@ -10,6 +10,9 @@ import time
 QUEUE_FILE = "optimization/queue.json"
 LOG_FILE = "optimization/experiment_log.md"
 
+# Maximum training time per experiment in seconds (hard rule: 10s rapid iteration)
+MAX_TIME = 10
+
 # Base config that all experiments inherit from (matching current best baseline)
 BASE_ARGS = [
     "--model", "JiT-B/16",
@@ -17,13 +20,14 @@ BASE_ARGS = [
     "--noise_scale", "1.0",
     "--batch_size", "128",
     "--blr", "2e-3",
-    "--epochs", "8",
-    "--warmup_epochs", "1",
+    "--epochs", "100",
+    "--warmup_epochs", "0",
+    "--max_time", str(MAX_TIME),
     "--class_num", "10",
     "--data_path", "data/imagenette2-320",
     "--num_workers", "4",
     "--save_last_freq", "100",
-    "--log_freq", "10",
+    "--log_freq", "5",
     "--seed", "0",
 ]
 
@@ -40,9 +44,11 @@ def run_experiment(exp):
     changes = exp.get("changes", {})
     if isinstance(changes, dict):
         for k, v in changes.items():
-            # Remove existing arg if present
             key = f"--{k}"
-            if key in args:
+            if v == "true":
+                # Boolean flag (store_true action)
+                args.append(key)
+            elif key in args:
                 idx = args.index(key)
                 args[idx+1] = str(v)
             else:
@@ -60,7 +66,8 @@ def run_experiment(exp):
     print(f"{'='*60}\n")
 
     start = time.time()
-    result = subprocess.run(cmd, capture_output=True, text=True, timeout=1200)
+    # Generous subprocess timeout (MAX_TIME + 60s for startup/cleanup)
+    result = subprocess.run(cmd, capture_output=True, text=True, timeout=MAX_TIME + 60)
     elapsed = time.time() - start
 
     output = result.stdout + result.stderr
@@ -69,11 +76,10 @@ def run_experiment(exp):
     with open(f"{output_dir}/train.log", "w") as f:
         f.write(output)
 
-    # Extract final loss from last epoch's last iteration
+    # Extract final loss — take the last reported running average loss
     final_loss = None
     for line in output.split("\n"):
-        # Match the last iteration of any epoch: "Epoch: [N]  [M/M]  ... loss: X.XXXX (Y.YYYY)"
-        m = re.search(r'Epoch: \[\d+\].*\]\s+eta: 0:00:00.*loss: [\d.]+ \(([\d.]+)\)', line)
+        m = re.search(r'loss: [\d.]+ \(([\d.]+)\)', line)
         if m:
             final_loss = float(m.group(1))
 

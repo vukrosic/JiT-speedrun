@@ -41,48 +41,72 @@ def get_running_experiment():
                 exp_name = os.path.basename(exp_dir)
                 # Extract key args
                 args = {}
-                for param in ["batch_size", "blr", "epochs", "bottleneck_dim", "mlp_ratio",
+                for param in ["batch_size", "blr", "epochs", "max_time", "bottleneck_dim", "mlp_ratio",
                               "in_context_len", "in_context_start", "grad_clip", "label_drop_prob",
                               "weight_decay", "P_mean", "P_std"]:
                     pm = re.search(rf"--{param}\s+(\S+)", line)
                     if pm:
                         args[param] = pm.group(1)
+                # Boolean flags
+                for flag in ["learned_pos_embed", "skip_connections", "sandwich_norm",
+                             "shared_adaln", "zero_init_residual_scale"]:
+                    if f"--{flag}" in line:
+                        args[flag] = "true"
                 return {"running": True, "exp_id": exp_name, "output_dir": exp_dir, "args": args}
         return {"running": False}
     except:
         return {"running": False}
 
 def get_live_training_progress(output_dir):
-    log_path = os.path.join(output_dir, "train.log") if output_dir else None
-    if not log_path or not os.path.exists(log_path):
+    """Read training progress from tfevents or train.log — purely passive file reads."""
+    if not output_dir:
         return {"epochs": [], "latest_loss": None}
+    # Resolve relative paths against project root
+    if not os.path.isabs(output_dir):
+        output_dir = os.path.join(PROJECT, output_dir)
+    if not os.path.exists(output_dir):
+        return {"epochs": [], "latest_loss": None}
+
     epochs = []
     latest_loss = None
     latest_epoch = -1
     latest_iter = -1
     total_iters = -1
     total_epochs = 8
-    with open(log_path) as f:
-        for line in f:
-            m = re.search(r'Start training for (\d+) epochs', line)
-            if m:
-                total_epochs = int(m.group(1))
-            m = re.search(r'Epoch: \[(\d+)\]\s+\[(\d+)/(\d+)\].*loss: ([\d.]+) \(([\d.]+)\)', line)
-            if m:
-                epoch = int(m.group(1))
-                iter_num = int(m.group(2))
-                total = int(m.group(3))
-                avg_loss = float(m.group(5))
-                latest_loss = avg_loss
-                latest_epoch = epoch
-                latest_iter = iter_num
-                total_iters = total
-                if re.search(r'eta: 0:00:00', line):
-                    epochs.append({"epoch": epoch, "loss": avg_loss})
+
+    # Try train.log first (exists after experiment completes)
+    log_path = os.path.join(output_dir, "train.log")
+    if os.path.exists(log_path):
+        with open(log_path) as f:
+            for line in f:
+                m = re.search(r'Start training for (\d+) epochs', line)
+                if m:
+                    total_epochs = int(m.group(1))
+                m = re.search(r'Epoch: \[(\d+)\]\s+\[(\d+)/(\d+)\].*loss: ([\d.]+) \(([\d.]+)\)', line)
+                if m:
+                    epoch = int(m.group(1))
+                    iter_num = int(m.group(2))
+                    total = int(m.group(3))
+                    avg_loss = float(m.group(5))
+                    latest_loss = avg_loss
+                    latest_epoch = epoch
+                    latest_iter = iter_num
+                    total_iters = total
+                    if re.search(r'eta: 0:00:00', line):
+                        epochs.append({"epoch": epoch, "loss": avg_loss})
+
+    # Calculate elapsed time from output directory creation (non-interfering)
+    elapsed_s = None
+    try:
+        elapsed_s = round(time.time() - os.path.getctime(output_dir))
+    except:
+        pass
+
     return {
         "epochs": epochs, "latest_loss": latest_loss,
         "latest_epoch": latest_epoch, "latest_iter": latest_iter,
         "total_iters": total_iters, "total_epochs": total_epochs,
+        "elapsed_s": elapsed_s,
     }
 
 def get_queue():
@@ -96,11 +120,37 @@ def get_queue():
         return []
 
 def get_leaderboard():
+    """Parse leaderboard.md into structured data for the dashboard."""
     path = os.path.join(PROJECT, "optimization/leaderboard.md")
     if not os.path.exists(path):
-        return ""
+        return {"baseline": None, "must_beat": None, "entries": []}
     with open(path) as f:
-        return f.read()
+        text = f.read()
+    result = {"baseline": None, "must_beat": None, "noise_floor": None, "entries": []}
+    # Parse active baseline
+    m = re.search(r'Active baseline:\*\*\s*(\S+)\s*\|\s*loss:\s*([\d.]+)', text)
+    if m:
+        result["baseline"] = {"exp_id": m.group(1), "loss": float(m.group(2))}
+    m = re.search(r'Must beat:\*\*\s*([\d.]+)', text)
+    if m:
+        result["must_beat"] = float(m.group(1))
+    m = re.search(r'Min detectable improvement:\*\*\s*([\d.]+)', text)
+    if m:
+        result["noise_floor"] = float(m.group(1))
+    # Parse table rows
+    for line in text.split('\n'):
+        m = re.match(r'\|\s*(\d+)\s*\|\s*(\S+)\s*\|\s*([\d.]+)\s*\|\s*([^|]*)\|\s*([^|]*)\|\s*([^|]*)\|\s*([^|]*)\|', line)
+        if m:
+            result["entries"].append({
+                "rank": int(m.group(1)),
+                "exp_id": m.group(2),
+                "loss": float(m.group(3)),
+                "delta": m.group(4).strip(),
+                "improvement": m.group(5).strip(),
+                "key_change": m.group(6).strip(),
+                "batch": m.group(7).strip(),
+            })
+    return result
 
 def get_all_results():
     results = []
@@ -142,7 +192,7 @@ def api_results():
 
 @app.route("/api/leaderboard")
 def api_leaderboard():
-    return get_leaderboard(), 200, {'Content-Type': 'text/plain'}
+    return jsonify(get_leaderboard())
 
 @app.route("/")
 def index():
@@ -322,20 +372,22 @@ function renderGPU(gpu) {
   `;
 }
 
-function renderLeaderboard(results) {
-  const valid = results.filter(r => r.loss !== null).sort((a,b) => a.loss - b.loss).slice(0, 8);
-  if (valid.length > 0) globalBest = valid[0].loss;
-  document.getElementById('header-best').textContent = 'Best: ' + (valid.length > 0 ? valid[0].loss.toFixed(4) : '—');
+function renderLeaderboard(lb) {
+  // lb comes from /api/leaderboard — curated entries that beat previous baseline by > noise floor
+  const entries = (lb.entries || []).sort((a,b) => a.rank - b.rank).reverse(); // show best first (highest rank)
+  if (lb.baseline) globalBest = lb.baseline.loss;
+  document.getElementById('header-best').textContent = 'Best: ' + (lb.baseline ? lb.baseline.loss.toFixed(4) : '—');
 
-  return valid.map((r, i) => {
+  if (entries.length === 0) return '<div style="color:#8b949e;font-size:12px">No entries yet</div>';
+
+  return entries.map((r, i) => {
     const rc = i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : '';
-    const delta = ((r.loss / 0.1923 - 1) * 100).toFixed(1);
     return `
       <div class="lb-entry">
         <div class="lb-rank ${rc}">${i+1}</div>
         <div class="lb-info">
           <div class="lb-name">${r.exp_id}</div>
-          <div class="lb-delta">${r.batch} | ${delta}% vs original</div>
+          <div class="lb-delta">${r.improvement} improvement | ${r.key_change}</div>
         </div>
         <div class="lb-loss">${r.loss.toFixed(4)}</div>
       </div>
@@ -378,7 +430,21 @@ function renderBatch(data) {
 
     // Changes tags
     const changes = exp.changes || {};
-    const tags = Object.entries(changes).map(([k,v]) => `<span class="exp-tag">${k}=${v}</span>`).join('');
+    const PARAM_NAMES = {
+      'batch_size': 'Batch Size', 'blr': 'Base Learning Rate', 'epochs': 'Epochs',
+      'bottleneck_dim': 'Patch Embed Bottleneck', 'mlp_ratio': 'FFN Width Multiplier',
+      'in_context_len': 'Class Conditioning Tokens', 'in_context_start': 'Conditioning Injection Layer',
+      'grad_clip': 'Gradient Clipping', 'label_drop_prob': 'Label Dropout (CFG)',
+      'weight_decay': 'Weight Decay', 'P_mean': 'Noise Distribution Mean', 'P_std': 'Noise Distribution Std',
+      'learned_pos_embed': 'Learned Position Embeddings', 'skip_connections': 'U-Net Skip Connections',
+      'sandwich_norm': 'Sandwich Normalization', 'shared_adaln': 'Shared Conditioning Weights',
+      'zero_init_residual_scale': 'Learnable Residual Scaling',
+    };
+    const tags = Object.entries(changes).map(([k,v]) => {
+      const name = PARAM_NAMES[k] || k;
+      const display = v === 'true' ? name : `${name}: ${v}`;
+      return `<span class="exp-tag">${display}</span>`;
+    }).join('');
 
     // Loss display
     let lossHtml = '';
@@ -388,18 +454,23 @@ function renderBatch(data) {
       const delta = ((exp.result - globalBest) * 1000).toFixed(1);
       const sign = exp.result <= globalBest ? '' : '+';
       lossHtml = `<div class="exp-loss ${lc}">${exp.result.toFixed(4)}</div><div style="font-size:11px;color:#8b949e;text-align:right">${sign}${delta} vs best</div>`;
-      timeHtml = `<div class="exp-time">${fmtTime(exp.time_s)}</div>`;
-    } else if (isThis && progress.latest_loss) {
-      const lc = lossClass(progress.latest_loss);
-      lossHtml = `<div class="exp-loss ${lc} pulse">${progress.latest_loss.toFixed(4)}</div>`;
+      timeHtml = exp.time_s ? `<div class="exp-time">${fmtTime(exp.time_s)} elapsed</div>` : '';
+    } else if (isThis) {
+      if (progress.latest_loss) {
+        const lc = lossClass(progress.latest_loss);
+        lossHtml = `<div class="exp-loss ${lc} pulse">${progress.latest_loss.toFixed(4)}</div>`;
+      } else {
+        lossHtml = `<div class="exp-loss neutral pulse">...</div>`;
+      }
 
       // Progress info
       const ep = progress.latest_epoch >= 0 ? progress.latest_epoch + 1 : 0;
       const totalEp = progress.total_epochs || 8;
       const pct = progress.total_iters > 0 ? Math.round(((progress.latest_epoch * progress.total_iters + progress.latest_iter) / (totalEp * progress.total_iters)) * 100) : 0;
+      const elapsed = progress.elapsed_s ? fmtTime(progress.elapsed_s) : '';
       timeHtml = `
         <div class="exp-progress-bar">
-          <div class="progress-text"><span>Epoch ${ep}/${totalEp}</span><span>${pct}%</span></div>
+          <div class="progress-text"><span>Epoch ${ep}/${totalEp}</span><span>${pct}%${elapsed ? ' | ' + elapsed : ''}</span></div>
           <div class="bar"><div class="bar-fill util" style="width:${pct}%"></div></div>
         </div>
       `;
@@ -451,12 +522,19 @@ function updateDashboard() {
     .catch(e => { document.getElementById('update-status').textContent = 'Error: ' + e.message; });
 }
 
+function updateLeaderboard() {
+  fetch('/api/leaderboard')
+    .then(r => r.json())
+    .then(lb => {
+      document.getElementById('leaderboard').innerHTML = renderLeaderboard(lb);
+    });
+}
+
 function updateResults() {
   fetch('/api/results')
     .then(r => r.json())
     .then(results => {
       const valid = results.filter(r => r.loss !== null).sort((a,b) => a.loss - b.loss);
-      document.getElementById('leaderboard').innerHTML = renderLeaderboard(results);
       document.getElementById('results-count').textContent = valid.length + ' experiments';
 
       const rows = valid.map((r, i) => {
@@ -470,8 +548,10 @@ function updateResults() {
 }
 
 updateDashboard();
+updateLeaderboard();
 updateResults();
 setInterval(updateDashboard, 3000);
+setInterval(updateLeaderboard, 10000);
 setInterval(updateResults, 10000);
 </script>
 </body></html>

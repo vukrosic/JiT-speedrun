@@ -2,6 +2,7 @@ import math
 import sys
 import os
 import shutil
+import time
 
 import torch
 import numpy as np
@@ -13,12 +14,12 @@ import torch_fidelity
 import copy
 
 
-def train_one_epoch(model, model_without_ddp, data_loader, optimizer, device, epoch, log_writer=None, args=None):
+def train_one_epoch(model, model_without_ddp, data_loader, optimizer, device, epoch, log_writer=None, args=None, deadline=None):
     model.train(True)
     metric_logger = misc.MetricLogger(delimiter="  ")
     metric_logger.add_meter('lr', misc.SmoothedValue(window_size=1, fmt='{value:.6f}'))
     header = 'Epoch: [{}]'.format(epoch)
-    print_freq = 20
+    print_freq = getattr(args, 'log_freq', 20)
 
     optimizer.zero_grad()
 
@@ -26,6 +27,11 @@ def train_one_epoch(model, model_without_ddp, data_loader, optimizer, device, ep
         print('log_dir: {}'.format(log_writer.log_dir))
 
     for data_iter_step, (x, labels) in enumerate(metric_logger.log_every(data_loader, print_freq, header)):
+        # Check time limit
+        if deadline and time.time() >= deadline:
+            print(f"Time limit reached mid-epoch {epoch}, stopping at iter {data_iter_step}")
+            break
+
         # per iteration (instead of per epoch) lr scheduler
         lr_sched.adjust_learning_rate(optimizer, data_iter_step / len(data_loader) + epoch, args)
 

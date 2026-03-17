@@ -1,76 +1,82 @@
 [
   {
-    "exp_id": "bs64_blr4e-3_bn768",
-    "hypothesis": "bs=64 doubles gradient steps again (proven strategy: bs=256->128 gave 9%). Scale LR linearly with bs: blr=4e-3 gives effective LR=1e-3, same as optimal at bs=256.",
-    "category": "exploitation",
+    "exp_id": "arch_shared_adaln_fix",
+    "hypothesis": "Re-run shared adaLN with DDP fix (previous run crashed due to unused parameters).",
+    "category": "exploration",
     "parent_exp": "arch_bottleneck512",
     "changes": {
-      "batch_size": "64",
-      "blr": "4e-3",
-      "bottleneck_dim": "768"
+      "bottleneck_dim": "768",
+      "shared_adaln": "true"
     },
     "priority": 1,
     "status": "done",
-    "batch": 11,
-    "result": 0.1134,
-    "time_s": 298.1
+    "batch": 14,
+    "result": 0.4282,
+    "time_s": 19.2
   },
   {
-    "exp_id": "bs64_blr3e-3_bn768",
-    "hypothesis": "bs=64 with slightly lower LR. At bs=128, blr=2e-3 was optimal \u2014 try same effective LR ratio but scaled down.",
-    "category": "exploitation",
-    "parent_exp": "arch_bottleneck512",
+    "exp_id": "arch_resscale_skip",
+    "hypothesis": "Combine top innovation (residual scaling) with skip connections. Both improve gradient flow in complementary ways.",
+    "category": "combination",
+    "parent_exp": "arch_residual_scale",
     "changes": {
-      "batch_size": "64",
-      "blr": "3e-3",
-      "bottleneck_dim": "768"
+      "bottleneck_dim": "768",
+      "zero_init_residual_scale": "true",
+      "skip_connections": "true"
     },
     "priority": 1,
-    "status": "failed",
-    "batch": 11,
-    "result": null,
-    "time_s": 9.2
+    "status": "done",
+    "batch": 14,
+    "result": 0.6437,
+    "time_s": 19.3
   },
   {
-    "exp_id": "bs64_blr2e-3_bn768",
-    "hypothesis": "bs=64 keeping same blr as bs=128. Effective LR halved \u2014 maybe better stability with 2x more steps.",
-    "category": "exploitation",
-    "parent_exp": "arch_bottleneck512",
+    "exp_id": "arch_resscale_sandwich",
+    "hypothesis": "Combine residual scaling with sandwich norm. Both stabilize training dynamics.",
+    "category": "combination",
+    "parent_exp": "arch_residual_scale",
     "changes": {
-      "batch_size": "64",
-      "blr": "2e-3",
-      "bottleneck_dim": "768"
+      "bottleneck_dim": "768",
+      "zero_init_residual_scale": "true",
+      "sandwich_norm": "true"
     },
     "priority": 1,
-    "status": "running",
-    "batch": 11
+    "status": "done",
+    "batch": 14,
+    "result": 0.4308,
+    "time_s": 19.6
   },
   {
-    "exp_id": "bs64_blr6e-3_bn768",
-    "hypothesis": "bs=64 with aggressive LR. Push higher to see if smaller batch stabilizes training at higher LR.",
-    "category": "exploration",
-    "parent_exp": "arch_bottleneck512",
+    "exp_id": "arch_resscale_learned",
+    "hypothesis": "Combine residual scaling with learned positional embeddings.",
+    "category": "combination",
+    "parent_exp": "arch_residual_scale",
     "changes": {
-      "batch_size": "64",
-      "blr": "6e-3",
-      "bottleneck_dim": "768"
+      "bottleneck_dim": "768",
+      "zero_init_residual_scale": "true",
+      "learned_pos_embed": "true"
     },
     "priority": 1,
-    "status": "pending",
-    "batch": 11
+    "status": "done",
+    "batch": 14,
+    "result": 0.4251,
+    "time_s": 19.2
   },
   {
-    "exp_id": "bs32_blr4e-3_bn768",
-    "hypothesis": "bs=32 = 8x gradient steps vs original bs=256. Extreme step count. If bs halving keeps helping, this could be big.",
-    "category": "exploration",
-    "parent_exp": "arch_bottleneck512",
+    "exp_id": "arch_triple",
+    "hypothesis": "Triple combo: residual scaling + skip connections + sandwich norm. All three address gradient flow.",
+    "category": "combination",
+    "parent_exp": "arch_residual_scale",
     "changes": {
-      "batch_size": "32",
-      "blr": "4e-3",
-      "bottleneck_dim": "768"
+      "bottleneck_dim": "768",
+      "zero_init_residual_scale": "true",
+      "skip_connections": "true",
+      "sandwich_norm": "true"
     },
     "priority": 1,
-    "status": "pending",
-    "batch": 11
+    "status": "done",
+    "batch": 14,
+    "result": 0.709,
+    "time_s": 19.9
   }
 ]

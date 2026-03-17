@@ -393,14 +393,24 @@ class JiT(nn.Module):
                 x = torch.cat([in_context_tokens, x], dim=1)
 
             # U-Net skip: save features from first half, merge in second half
+            # Only connect layers with matching sequence lengths
             if self.skip_connections:
                 if i < depth // 2:
-                    skip_features.append(x)
+                    skip_features.append((x, x.shape[1]))  # save tensor and seq_len
                 elif i >= depth // 2:
                     skip_idx = depth - 1 - i
                     if skip_idx < len(skip_features):
-                        skip_x = skip_features[skip_idx]
-                        x = self.skip_projs[skip_idx](torch.cat([x, skip_x], dim=-1))
+                        skip_x, skip_len = skip_features[skip_idx]
+                        if skip_len == x.shape[1]:
+                            # Same seq length — direct skip
+                            x = self.skip_projs[skip_idx](torch.cat([x, skip_x], dim=-1))
+                        elif x.shape[1] > skip_len:
+                            # Current has in-context tokens, skip doesn't — skip the extra prefix
+                            extra = x.shape[1] - skip_len
+                            prefix = x[:, :extra]
+                            x_main = x[:, extra:]
+                            x_main = self.skip_projs[skip_idx](torch.cat([x_main, skip_x], dim=-1))
+                            x = torch.cat([prefix, x_main], dim=1)
 
             # shared adaLN: replace block's own modulation with shared one
             if self.shared_adaln:

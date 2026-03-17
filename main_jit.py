@@ -40,6 +40,10 @@ def get_args_parser():
     parser.add_argument('--shared_adaln', action='store_true', help='Share adaLN modulation weights across all blocks')
     parser.add_argument('--zero_init_residual_scale', action='store_true', help='Learnable per-block residual scaling init to 0.1')
 
+    # time limit
+    parser.add_argument('--max_time', type=float, default=0,
+                        help='Maximum training time in seconds (0 = unlimited)')
+
     # training
     parser.add_argument('--epochs', default=200, type=int)
     parser.add_argument('--warmup_epochs', type=int, default=5, metavar='N',
@@ -191,7 +195,10 @@ def main(args):
     print("Actual lr: {:.2e}".format(args.lr))
     print("Effective batch size: %d" % eff_batch_size)
 
-    model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
+    ddp_kwargs = {}
+    if getattr(args, 'shared_adaln', False):
+        ddp_kwargs['find_unused_parameters'] = True
+    model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu], **ddp_kwargs)
     model_without_ddp = model.module
 
     # Set up optimizer with weight decay adjustment for bias and norm layers
@@ -231,13 +238,18 @@ def main(args):
         return
 
     # Training loop
-    print(f"Start training for {args.epochs} epochs")
+    deadline = (time.time() + args.max_time) if args.max_time > 0 else None
+    print(f"Start training for {args.epochs} epochs" + (f" (max {args.max_time:.0f}s)" if deadline else ""))
     start_time = time.time()
     for epoch in range(args.start_epoch, args.epochs):
+        if deadline and time.time() >= deadline:
+            print(f"Time limit reached ({args.max_time:.0f}s), stopping after epoch {epoch-1}")
+            break
+
         if args.distributed:
             data_loader_train.sampler.set_epoch(epoch)
 
-        train_one_epoch(model, model_without_ddp, data_loader_train, optimizer, device, epoch, log_writer=log_writer, args=args)
+        train_one_epoch(model, model_without_ddp, data_loader_train, optimizer, device, epoch, log_writer=log_writer, args=args, deadline=deadline)
 
         # Checkpoint saving disabled for optimization experiments (no_save flag)
 
