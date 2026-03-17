@@ -1,108 +1,64 @@
 [
   {
-    "exp_id": "baseline_seed0",
-    "hypothesis": "Establish baseline",
+    "exp_id": "lr_7e-4",
+    "hypothesis": "14x baseline LR \u2014 continuing monotonic improvement trend from batch 1",
     "category": "exploitation",
-    "parent_exp": "none",
-    "changes": {},
-    "priority": 0,
-    "status": "done",
-    "result": 0.1904,
-    "batch": 0
-  },
-  {
-    "exp_id": "baseline_seed1",
-    "hypothesis": "Noise floor measurement",
-    "category": "exploitation",
-    "parent_exp": "none",
+    "parent_exp": "lr_5e-4",
     "changes": {
-      "seed": "1"
-    },
-    "priority": 0,
-    "status": "done",
-    "result": 0.1937,
-    "batch": 0
-  },
-  {
-    "exp_id": "baseline_seed2",
-    "hypothesis": "Noise floor measurement",
-    "category": "exploitation",
-    "parent_exp": "none",
-    "changes": {
-      "seed": "2"
-    },
-    "priority": 0,
-    "status": "done",
-    "result": 0.1928,
-    "batch": 0
-  },
-  {
-    "exp_id": "lr_1e-4",
-    "hypothesis": "2x baseline LR \u2014 higher LR often converges faster with large batch",
-    "category": "exploitation",
-    "parent_exp": "baseline",
-    "changes": {
-      "blr": "1e-4"
+      "blr": "7e-4"
     },
     "priority": 1,
     "status": "done",
-    "batch": 1,
-    "result": 0.1675,
-    "time_s": 262.6
+    "batch": 2,
+    "result": 0.1322,
+    "time_s": 264.4
   },
   {
-    "exp_id": "lr_2e-4",
-    "hypothesis": "4x baseline LR \u2014 aggressive but plausible for bs=256",
+    "exp_id": "lr_1e-3",
+    "hypothesis": "20x baseline LR \u2014 probing further up the LR curve",
     "category": "exploitation",
-    "parent_exp": "baseline",
+    "parent_exp": "lr_5e-4",
     "changes": {
-      "blr": "2e-4"
+      "blr": "1e-3"
     },
     "priority": 1,
-    "status": "done",
-    "batch": 1,
-    "result": 0.1479,
-    "time_s": 263.0
+    "status": "running",
+    "batch": 2
   },
   {
-    "exp_id": "lr_5e-4",
-    "hypothesis": "10x baseline LR \u2014 may diverge but worth testing",
+    "exp_id": "lr_2e-3",
+    "hypothesis": "40x baseline LR \u2014 testing for divergence threshold",
     "category": "exploitation",
-    "parent_exp": "baseline",
+    "parent_exp": "lr_5e-4",
     "changes": {
-      "blr": "5e-4"
+      "blr": "2e-3"
     },
     "priority": 1,
-    "status": "done",
-    "batch": 1,
-    "result": 0.1353,
-    "time_s": 261.3
+    "status": "pending",
+    "batch": 2
   },
   {
-    "exp_id": "lr_2e-5",
-    "hypothesis": "0.4x baseline LR \u2014 more conservative",
+    "exp_id": "lr_3e-3",
+    "hypothesis": "60x baseline LR \u2014 likely near divergence boundary",
     "category": "exploitation",
-    "parent_exp": "baseline",
+    "parent_exp": "lr_5e-4",
     "changes": {
-      "blr": "2e-5"
+      "blr": "3e-3"
     },
     "priority": 1,
-    "status": "done",
-    "batch": 1,
-    "result": 0.2314,
-    "time_s": 262.5
+    "status": "pending",
+    "batch": 2
   },
   {
-    "exp_id": "lr_1e-5",
-    "hypothesis": "0.2x baseline LR \u2014 very conservative, may underfit in 8 epochs",
-    "category": "exploitation",
-    "parent_exp": "baseline",
+    "exp_id": "lr_5e-3",
+    "hypothesis": "100x baseline LR \u2014 extreme, likely diverges but establishes upper bound",
+    "category": "exploration",
+    "parent_exp": "lr_5e-4",
     "changes": {
-      "blr": "1e-5"
+      "blr": "5e-3"
     },
     "priority": 1,
-    "status": "failed",
-    "batch": 1,
-    "notes": "[Errno 28] No space left on device: 'results/batch_01/lr_1e-5/train.log'"
+    "status": "pending",
+    "batch": 2
   }
 ]
