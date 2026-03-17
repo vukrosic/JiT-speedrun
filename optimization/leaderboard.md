@@ -1,14 +1,16 @@
 # Leaderboard
 
-Active baseline:** s10_label_drop_prob_0.15 | loss: 0.2033 | 2026-03-17
+Active baseline:** s25_P_std_0.05 | loss: 0.2021 | 2026-03-17
 **Rule:** Same seed (0) always. 5s training. Any lower loss = better.
-**Total improvement:** 76.7% from baseline (1.3420 → 0.3122)
+**Total improvement:** 84.9% from baseline (1.3420 → 0.2021)
 **Full logs:** [all_history.csv](file:///root/workspace/JiT/optimization/all_history.csv)
 
 ## Historical Progression
 
 | Rank | Exp ID | Metric | Δ vs Previous | % Improvement | Key Change | Batch |
 |------|--------|--------|---------------|---------------|------------|-------|
+| 37 | s25_P_std_0.05 | 0.2021 | -0.0006 | 0.3% | P_std=0.05 | 25 |
+| 36 | s15_P_std_0.08 | 0.2027 | -0.0006 | 0.3% | P_std=0.08 | 15 |
 | 35 | s10_label_drop_prob_0.15 | 0.2033 | -0.0071 | 3.4% | label_drop_prob=0.15 | 10 |
 | 34 | s2_P_mean_-1.5 | 0.2104 | -0.0051 | 2.4% | P_mean=-1.5 | 2 |
 | 33 | b30_crazy_7 | 0.2155 | -0.0113 | 5.0% | Crazy: in_context_len=16, P_std=0.1, in_context_start=10, shared_adaln=true | 30 |

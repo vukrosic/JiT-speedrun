@@ -1,75 +1,75 @@
 [
   {
-    "exp_id": "s66_batch_size_32",
-    "hypothesis": "Sweep batch_size=32 (current=64). Batch size sweep",
+    "exp_id": "s68_in_context_start_2",
+    "hypothesis": "Sweep in_context_start=2 (current=10). In-context injection layer sweep",
     "category": "sweep",
     "parent_config": "leaderboard_best",
     "changes": {
-      "batch_size": "32"
+      "in_context_start": "2"
     },
-    "axis": "batch_size",
-    "value": "32",
+    "axis": "in_context_start",
+    "value": "2",
     "priority": 1,
     "status": "done",
-    "batch": 66,
-    "result": 0.225
+    "batch": 68,
+    "result": 0.2211
   },
   {
-    "exp_id": "s66_batch_size_48",
-    "hypothesis": "Sweep batch_size=48 (current=64). Batch size sweep",
+    "exp_id": "s68_in_context_start_4",
+    "hypothesis": "Sweep in_context_start=4 (current=10). In-context injection layer sweep",
     "category": "sweep",
     "parent_config": "leaderboard_best",
     "changes": {
-      "batch_size": "48"
+      "in_context_start": "4"
     },
-    "axis": "batch_size",
-    "value": "48",
+    "axis": "in_context_start",
+    "value": "4",
     "priority": 1,
     "status": "done",
-    "batch": 66,
-    "result": 0.2138
+    "batch": 68,
+    "result": 0.2209
   },
   {
-    "exp_id": "s66_batch_size_96",
-    "hypothesis": "Sweep batch_size=96 (current=64). Batch size sweep",
+    "exp_id": "s68_in_context_start_6",
+    "hypothesis": "Sweep in_context_start=6 (current=10). In-context injection layer sweep",
     "category": "sweep",
     "parent_config": "leaderboard_best",
     "changes": {
-      "batch_size": "96"
+      "in_context_start": "6"
     },
-    "axis": "batch_size",
-    "value": "96",
+    "axis": "in_context_start",
+    "value": "6",
     "priority": 1,
     "status": "done",
-    "batch": 66,
-    "result": 0.256
+    "batch": 68,
+    "result": 0.2097
   },
   {
-    "exp_id": "s66_batch_size_128",
-    "hypothesis": "Sweep batch_size=128 (current=64). Batch size sweep",
+    "exp_id": "s68_in_context_start_8",
+    "hypothesis": "Sweep in_context_start=8 (current=10). In-context injection layer sweep",
     "category": "sweep",
     "parent_config": "leaderboard_best",
     "changes": {
-      "batch_size": "128"
+      "in_context_start": "8"
     },
-    "axis": "batch_size",
-    "value": "128",
+    "axis": "in_context_start",
+    "value": "8",
     "priority": 1,
     "status": "pending",
-    "batch": 66
+    "batch": 68
   },
   {
-    "exp_id": "s66_batch_size_256",
-    "hypothesis": "Sweep batch_size=256 (current=64). Batch size sweep",
+    "exp_id": "s68_in_context_start_11",
+    "hypothesis": "Sweep in_context_start=11 (current=10). In-context injection layer sweep",
     "category": "sweep",
     "parent_config": "leaderboard_best",
     "changes": {
-      "batch_size": "256"
+      "in_context_start": "11"
     },
-    "axis": "batch_size",
-    "value": "256",
+    "axis": "in_context_start",
+    "value": "11",
     "priority": 1,
     "status": "pending",
-    "batch": 66
+    "batch": 68
   }
 ]
