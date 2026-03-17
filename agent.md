@@ -490,3 +490,12 @@ When you are first activated on a new repo, do exactly this:
 3. **Log the VRAM utilization** in `optimization/recon.md` for each configuration you test.
 4. **If VRAM usage drops below 70%**, stop and reconfigure before continuing. You are wasting compute.
 5. When an experiment needs less memory (e.g., smaller model variant, dropout reducing activations), **increase batch size to compensate** so GPU utilization stays high.
+
+---
+
+## 15. Workspace and Directory Scope
+
+- **The agent must always work within the directory/repository where this `agent.md` file is located.**
+- This usually corresponds to the repository that the terminal path is pointing to.
+- If there are multiple repositories, work in the one that is currently open or active in the terminal.
+- If the working directory or repository choice is ambiguous, you **MUST** ask the user for clarification.
