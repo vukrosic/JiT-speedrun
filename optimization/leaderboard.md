@@ -1,6 +1,6 @@
 # Leaderboard
 
-Active baseline:** b30_crazy_7 | loss: 0.2155 | 2026-03-17
+Active baseline:** s10_label_drop_prob_0.15 | loss: 0.2033 | 2026-03-17
 **Rule:** Same seed (0) always. 5s training. Any lower loss = better.
 **Total improvement:** 76.7% from baseline (1.3420 → 0.3122)
 **Full logs:** [all_history.csv](file:///root/workspace/JiT/optimization/all_history.csv)
@@ -9,6 +9,8 @@ Active baseline:** b30_crazy_7 | loss: 0.2155 | 2026-03-17
 
 | Rank | Exp ID | Metric | Δ vs Previous | % Improvement | Key Change | Batch |
 |------|--------|--------|---------------|---------------|------------|-------|
+| 35 | s10_label_drop_prob_0.15 | 0.2033 | -0.0071 | 3.4% | label_drop_prob=0.15 | 10 |
+| 34 | s2_P_mean_-1.5 | 0.2104 | -0.0051 | 2.4% | P_mean=-1.5 | 2 |
 | 33 | b30_crazy_7 | 0.2155 | -0.0113 | 5.0% | Crazy: in_context_len=16, P_std=0.1, in_context_start=10, shared_adaln=true | 30 |
 | 32 | b26_exploit_1 | 0.2268 | -0.0008 | 0.4% | Exploit mutation: P_std=0.3 | 26 |
 | 31 | b25_wildcard_4 | 0.2276 | -0.0017 | 0.7% | Wildcard: learned_pos_embed=true, P_std=0.05, mlp_ratio=1.0 | 25 |

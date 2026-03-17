@@ -4,50 +4,50 @@
 - 1x NVIDIA RTX 3090 (24GB VRAM), 96 CPUs, 251GB RAM
 
 ## Model
-- JiT-B/16: Pixel-space diffusion transformer, 131M params
+- JiT-B/16: Pixel-space diffusion transformer, ~131M params (varies with mlp_ratio)
 - Task: Class-conditional image generation (flow matching, L2 velocity prediction)
 - Primary metric: Training loss (lower is better)
 
 ## Experiment Config
-- img_size: 128, batch_size: 256, epochs: 8
-- ~4.5 min per experiment, ~21.9GB VRAM (89%)
-- 36 iters/epoch, 288 total iters per experiment
+- img_size: 128, max_time: 5s, seed: 0
+- ~5 min per experiment with overhead
 
 ## Scaling Decision
 - **Hard limit: ≤ 5 min per experiment**
-- 128px with bs=256 to fill VRAM while staying within time budget
-- bs=320 OOMs; bs=256 is the maximum
-- This is a proxy setup: reduced resolution + reduced data (Imagenette 10-class)
-- Proxy preserves: same architecture, same optimizer, same param count
+- 128px with bs=64 as current best
+- Proxy setup: reduced resolution + reduced data (Imagenette 10-class)
 
-## Baseline
-- **Active best: arch_bottleneck512 → loss: 0.1138** | Must beat: 0.1112
-- Practical best cluster: ~0.1132 (bn768 variants, within noise)
-- Config: 128px, bs=128, blr=2e-3, 8 epochs, warmup=1, constant LR, no WD, bottleneck_dim=512
-- Original baseline: 0.1923 (blr=5e-5, bs=256)
-- **Total improvement: 40.8% from original baseline**
+## Active Baseline
+- **b30_crazy_7 | loss: 0.2155**
+- Config: blr=3e-3, bs=64, bottleneck_dim=768, shared_adaln=true, mlp_ratio=1.0, in_context_len=16, in_context_start=10, learned_pos_embed=true, P_mean=-2.0, P_std=0.1, warmup=0, constant LR, no WD, no grad clip, label_drop=0.1
 
 ## Noise Floor
-- **Std: 0.0017 | Min detectable improvement: 0.0026 | Must beat: 0.1112**
+- **Std: 0.0017 | Min detectable improvement: 0.0026**
 
-## Experiment Order
-1. **LR sweep** (first batch, ~5 experiments): blr in [1e-5, 2e-5, 5e-5, 1e-4, 2e-4]
-2. **LR schedule**: cosine vs constant (with best LR from step 1)
-3. **Weight decay**: [0.01, 0.05, 0.1]
-4. **Noise schedule**: P_mean, P_std variations
-5. **Warmup**: [0, 1, 2, 3] epochs
-6. **Gradient clipping**: [0.5, 1.0, 2.0]
-7. **Regularization**: attn_dropout, proj_dropout, label_drop_prob
-8. **Architecture**: mlp_ratio, in_context_len, bottleneck_dim
+## Strategy: Systematic Single-Variable Sweep
+Each axis is swept with 5 values bracketing the current best. If a sweep finds a winner, check if the trend is at the edge (refine further). Then lock the best value and move to the next axis.
 
-Single-variable discipline: each experiment changes at most one thing from its parent config.
+**Sweep order (by expected impact):**
+1. blr (current: 3e-3)
+2. P_mean (current: -2.0)
+3. P_std (current: 0.1)
+4. batch_size (current: 64)
+5. in_context_len (current: 16)
+6. in_context_start (current: 10)
+7. mlp_ratio (current: 1.0)
+8. grad_clip (current: 0 = off)
+9. label_drop_prob (current: 0.1)
+10. bottleneck_dim (current: 768)
 
-## Strategy
-- Systematic before exploratory
-- Small batches of ~5, analyze after each
-- 60/40 exploitation/exploration split
-- If no improvement after 15 experiments: reset analysis
+**Rules:**
+- 5 experiments per batch, one variable at a time
+- Analyze after each batch before generating next
+- If best is at edge of range, refine (up to 2 rounds)
+- After all axes done, restart schedule with updated config
 
 ## Banlist
-- warmup=3 + constant LR at blr=1e-3: diverges (NaN, 44s)
-- cosine schedule: consistently worse than constant in 8-epoch proxy runs
+- weight_decay: no effect at 5s
+- P_std > 0.8: hurts
+- skip_connections: overhead, fewer iters
+- cosine schedule: worse than constant at 5s
+- bs < 32: too noisy
