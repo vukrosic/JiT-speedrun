@@ -279,6 +279,10 @@ HTML_PAGE = r"""<!DOCTYPE html>
   .progress-text { font-size: 11px; color: #8b949e; margin-bottom: 2px; display: flex; justify-content: space-between; }
 
   /* Mini epoch chart */
+  .exp-row.is-record { background: linear-gradient(90deg, #1c2b18 0%, #0d1117 100%); border: 1px solid #3fb950; }
+  .record-badge { background: #3fb950; color: #0d1117; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-right: 8px; vertical-align: middle; }
+
+  /* Mini epoch chart */
   .mini-chart { display: flex; align-items: flex-end; gap: 1px; height: 40px; margin-top: 6px; }
   .mini-bar { background: #58a6ff; min-width: 8px; flex: 1; border-radius: 2px 2px 0 0; transition: height 0.3s; }
   .mini-bar.best { background: #3fb950; }
@@ -292,6 +296,7 @@ HTML_PAGE = r"""<!DOCTYPE html>
   th { text-align: left; padding: 8px 10px; color: #8b949e; border-bottom: 1px solid #30363d; font-weight: 500; position: sticky; top: 0; background: #161b22; }
   td { padding: 6px 10px; border-bottom: 1px solid #21262d; }
   tr:hover td { background: #1c2128; }
+  tr.is-record td { background: rgba(63, 185, 80, 0.05); }
 
   .pulse { animation: pulse 2s infinite; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
@@ -332,7 +337,7 @@ HTML_PAGE = r"""<!DOCTYPE html>
     <!-- All Results -->
     <div class="results-card" style="margin-top:16px">
       <div class="results-header">
-        <h2>All Completed Experiments</h2>
+        <h2>Global History & Success Monitor</h2>
         <span id="results-count" style="color:#8b949e;font-size:12px"></span>
       </div>
       <div class="results-body" id="results-table"></div>
@@ -342,15 +347,14 @@ HTML_PAGE = r"""<!DOCTYPE html>
 
 <script>
 const MUST_BEAT = 0.1112;
-let globalBest = 0.1132;
+let globalBest = 1.3420;
 
 function fmtLoss(v) { return v !== null && v !== undefined ? v.toFixed(4) : '—'; }
 function fmtTime(s) { return s ? (s < 60 ? s.toFixed(0)+'s' : Math.floor(s/60)+'m'+Math.round(s%60)+'s') : '—'; }
 
 function lossClass(loss) {
   if (!loss) return 'neutral';
-  if (loss <= MUST_BEAT) return 'good';
-  if (loss <= globalBest + 0.002) return 'good';
+  if (loss < globalBest) return 'good';
   if (loss <= globalBest + 0.01) return 'neutral';
   return 'bad';
 }
@@ -373,21 +377,21 @@ function renderGPU(gpu) {
 }
 
 function renderLeaderboard(lb) {
-  // lb comes from /api/leaderboard — curated entries that beat previous baseline by > noise floor
-  const entries = (lb.entries || []).sort((a,b) => a.rank - b.rank).reverse(); // show best first (highest rank)
+  const entries = (lb.entries || []).sort((a,b) => b.loss - a.loss); 
   if (lb.baseline) globalBest = lb.baseline.loss;
-  document.getElementById('header-best').textContent = 'Best: ' + (lb.baseline ? lb.baseline.loss.toFixed(4) : '—');
+  document.getElementById('header-best').textContent = 'Current Best: ' + (lb.baseline ? lb.baseline.loss.toFixed(4) : '—');
 
   if (entries.length === 0) return '<div style="color:#8b949e;font-size:12px">No entries yet</div>';
 
   return entries.map((r, i) => {
-    const rc = i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : '';
+    const isTop = i === entries.length - 1;
+    const rc = isTop ? 'r1' : '';
     return `
       <div class="lb-entry">
-        <div class="lb-rank ${rc}">${i+1}</div>
+        <div class="lb-rank ${rc}">${entries.length - i}</div>
         <div class="lb-info">
           <div class="lb-name">${r.exp_id}</div>
-          <div class="lb-delta">${r.improvement} improvement | ${r.key_change}</div>
+          <div class="lb-delta">${r.improvement} reduction</div>
         </div>
         <div class="lb-loss">${r.loss.toFixed(4)}</div>
       </div>
@@ -404,19 +408,17 @@ function renderBatch(data) {
     return `<div class="batch-card"><div class="batch-header idle"><div><div class="batch-title">No Active Batch</div><div class="batch-subtitle">Queue is empty</div></div><div class="batch-status idle">IDLE</div></div></div>`;
   }
 
-  // Determine batch info
   const batchNum = queue[0].batch || '?';
   const done = queue.filter(e => e.status === 'done').length;
   const total = queue.length;
-  const failed = queue.filter(e => e.status === 'failed').length;
   const isRunning = running.running;
 
   let html = `
     <div class="batch-card">
       <div class="batch-header${isRunning ? '' : ' idle'}">
         <div>
-          <div class="batch-title">Batch ${batchNum}</div>
-          <div class="batch-subtitle">${done}/${total} completed${failed ? ` | ${failed} failed` : ''}</div>
+          <div class="batch-title">Current Batch: ${batchNum}</div>
+          <div class="batch-subtitle">${done}/${total} completed</div>
         </div>
         <div class="batch-status ${isRunning ? 'running' : 'idle'}">${isRunning ? '<span class="spin">&#9881;</span> RUNNING' : 'WAITING'}</div>
       </div>
@@ -425,71 +427,24 @@ function renderBatch(data) {
 
   for (const exp of queue) {
     const isThis = running.running && running.exp_id === exp.exp_id;
-    const statusClass = exp.status === 'done' ? 'is-done' : exp.status === 'running' || isThis ? 'is-running' : exp.status === 'failed' ? 'is-failed' : 'is-pending';
-    const icon = exp.status === 'done' ? (exp.result !== null ? '&#10004;' : '&#10060;') : isThis ? '<span class="spin">&#9881;</span>' : exp.status === 'failed' ? '&#10060;' : '&#9711;';
+    const isRecord = exp.status === 'done' && exp.result < globalBest;
+    const statusClass = isRecord ? 'is-record' : exp.status === 'done' ? 'is-done' : isThis ? 'is-running' : exp.status === 'failed' ? 'is-failed' : 'is-pending';
+    const icon = isRecord ? '🏆' : exp.status === 'done' ? '✅' : isThis ? '<span class="spin">⚙️</span>' : '⌛';
 
-    // Changes tags
     const changes = exp.changes || {};
-    const PARAM_NAMES = {
-      'batch_size': 'Batch Size', 'blr': 'Base Learning Rate', 'epochs': 'Epochs',
-      'bottleneck_dim': 'Patch Embed Bottleneck', 'mlp_ratio': 'FFN Width Multiplier',
-      'in_context_len': 'Class Conditioning Tokens', 'in_context_start': 'Conditioning Injection Layer',
-      'grad_clip': 'Gradient Clipping', 'label_drop_prob': 'Label Dropout (CFG)',
-      'weight_decay': 'Weight Decay', 'P_mean': 'Noise Distribution Mean', 'P_std': 'Noise Distribution Std',
-      'learned_pos_embed': 'Learned Position Embeddings', 'skip_connections': 'U-Net Skip Connections',
-      'sandwich_norm': 'Sandwich Normalization', 'shared_adaln': 'Shared Conditioning Weights',
-      'zero_init_residual_scale': 'Learnable Residual Scaling',
-    };
-    const tags = Object.entries(changes).map(([k,v]) => {
-      const name = PARAM_NAMES[k] || k;
-      const display = v === 'true' ? name : `${name}: ${v}`;
-      return `<span class="exp-tag">${display}</span>`;
-    }).join('');
+    const tags = Object.entries(changes).map(([k,v]) => `<span class="exp-tag">${k}: ${v}</span>`).join('');
 
-    // Loss display
     let lossHtml = '';
     let timeHtml = '';
     if (exp.status === 'done' && typeof exp.result === 'number') {
       const lc = lossClass(exp.result);
-      const delta = ((exp.result - globalBest) * 1000).toFixed(1);
-      const sign = exp.result <= globalBest ? '' : '+';
-      lossHtml = `<div class="exp-loss ${lc}">${exp.result.toFixed(4)}</div><div style="font-size:11px;color:#8b949e;text-align:right">${sign}${delta} vs best</div>`;
-      timeHtml = exp.time_s ? `<div class="exp-time">${fmtTime(exp.time_s)} elapsed</div>` : '';
+      lossHtml = `<div class="exp-loss ${lc}">${isRecord ? '<span class="record-badge">NEW BEST</span>' : ''}${exp.result.toFixed(4)}</div>`;
+      timeHtml = exp.time_s ? `<div class="exp-time">${fmtTime(exp.time_s)}</div>` : '';
     } else if (isThis) {
-      if (progress.latest_loss) {
-        const lc = lossClass(progress.latest_loss);
-        lossHtml = `<div class="exp-loss ${lc} pulse">${progress.latest_loss.toFixed(4)}</div>`;
-      } else {
-        lossHtml = `<div class="exp-loss neutral pulse">...</div>`;
-      }
-
-      // Progress info
-      const ep = progress.latest_epoch >= 0 ? progress.latest_epoch + 1 : 0;
-      const totalEp = progress.total_epochs || 8;
-      const pct = progress.total_iters > 0 ? Math.round(((progress.latest_epoch * progress.total_iters + progress.latest_iter) / (totalEp * progress.total_iters)) * 100) : 0;
-      const elapsed = progress.elapsed_s ? fmtTime(progress.elapsed_s) : '';
-      timeHtml = `
-        <div class="exp-progress-bar">
-          <div class="progress-text"><span>Epoch ${ep}/${totalEp}</span><span>${pct}%${elapsed ? ' | ' + elapsed : ''}</span></div>
-          <div class="bar"><div class="bar-fill util" style="width:${pct}%"></div></div>
-        </div>
-      `;
-
-      // Mini epoch chart
-      if (progress.epochs && progress.epochs.length > 0) {
-        const maxL = Math.max(...progress.epochs.map(e => e.loss));
-        const minL = Math.min(...progress.epochs.map(e => e.loss));
-        const range = maxL - minL * 0.9 || 1;
-        const bars = progress.epochs.map(e => {
-          const h = Math.max(4, ((e.loss - minL * 0.9) / range) * 36);
-          const bc = e.loss <= globalBest ? 'best' : '';
-          return `<div class="mini-bar ${bc}" style="height:${h}px" title="E${e.epoch}: ${e.loss.toFixed(4)}"></div>`;
-        }).join('');
-        timeHtml += `<div class="mini-chart">${bars}</div>`;
-      }
-    } else if (exp.status === 'failed') {
-      lossHtml = `<div class="exp-loss bad">FAILED</div>`;
-      timeHtml = exp.notes ? `<div class="exp-time">${exp.notes}</div>` : '';
+      const currentLoss = progress.latest_loss;
+      lossHtml = `<div class="exp-loss ${lossClass(currentLoss)} pulse">${currentLoss ? currentLoss.toFixed(4) : '...'}</div>`;
+      const pct = progress.total_iters > 0 ? Math.round(((progress.latest_epoch * progress.total_iters + progress.latest_iter) / (progress.total_epochs * progress.total_iters)) * 100) : 0;
+      timeHtml = `<div class="bar"><div class="bar-fill util" style="width:${pct}%"></div></div>`;
     }
 
     html += `
@@ -500,9 +455,8 @@ function renderBatch(data) {
           <div class="exp-hypothesis">${exp.hypothesis || ''}</div>
           <div class="exp-changes">${tags}</div>
         </div>
-        <div class="exp-progress">${timeHtml}</div>
-        <div>${lossHtml}</div>
-        <div></div>
+        <div class="exp-progress" style="width:120px">${timeHtml}</div>
+        <div style="min-width:120px;text-align:right">${lossHtml}</div>
       </div>
     `;
   }
@@ -512,47 +466,50 @@ function renderBatch(data) {
 }
 
 function updateDashboard() {
-  fetch('/api/status')
-    .then(r => r.json())
-    .then(data => {
-      document.getElementById('update-status').textContent = 'Updated: ' + new Date().toLocaleTimeString();
-      document.getElementById('gpu-info').innerHTML = renderGPU(data.gpu);
-      document.getElementById('batch-section').innerHTML = renderBatch(data);
-    })
-    .catch(e => { document.getElementById('update-status').textContent = 'Error: ' + e.message; });
+  fetch('/api/status').then(r => r.json()).then(data => {
+    document.getElementById('update-status').textContent = 'Last Sync: ' + new Date().toLocaleTimeString();
+    document.getElementById('gpu-info').innerHTML = renderGPU(data.gpu);
+    document.getElementById('batch-section').innerHTML = renderBatch(data);
+  });
 }
 
 function updateLeaderboard() {
-  fetch('/api/leaderboard')
-    .then(r => r.json())
-    .then(lb => {
-      document.getElementById('leaderboard').innerHTML = renderLeaderboard(lb);
-    });
+  fetch('/api/leaderboard').then(r => r.json()).then(lb => {
+    document.getElementById('leaderboard').innerHTML = renderLeaderboard(lb);
+  });
 }
 
 function updateResults() {
-  fetch('/api/results')
-    .then(r => r.json())
-    .then(results => {
-      const valid = results.filter(r => r.loss !== null).sort((a,b) => a.loss - b.loss);
-      document.getElementById('results-count').textContent = valid.length + ' experiments';
+  fetch('/api/results').then(r => r.json()).then(results => {
+    const valid = results.filter(r => r.loss !== null).sort((a,b) => a.loss - b.loss);
+    document.getElementById('results-count').textContent = valid.length + ' experiments total';
 
-      const rows = valid.map((r, i) => {
-        const lc = r.loss <= globalBest + 0.001 ? 'color:#3fb950;font-weight:bold' : r.loss < 0.15 ? '' : 'color:#f85149';
-        const delta = ((r.loss - globalBest) / globalBest * 100).toFixed(1);
-        const ds = parseFloat(delta) <= 0 ? `<span style="color:#3fb950">${delta}%</span>` : `<span style="color:#8b949e">+${delta}%</span>`;
-        return `<tr><td style="color:#58a6ff">${i+1}</td><td style="font-weight:500">${r.exp_id}</td><td style="${lc}">${r.loss.toFixed(4)}</td><td>${ds}</td><td style="color:#8b949e">${r.batch}</td></tr>`;
-      }).join('');
-      document.getElementById('results-table').innerHTML = `<table><tr><th>#</th><th>Experiment</th><th>Loss</th><th>vs Best</th><th>Source</th></tr>${rows}</table>`;
-    });
+    const rows = valid.map((r, i) => {
+      const isRecord = r.loss < globalBest * 1.0001; // Highlight things close to or beating best
+      const rowClass = r.loss < globalBest ? 'is-record' : '';
+      const delta = ((r.loss - globalBest) / globalBest * 100).toFixed(1);
+      const ds = parseFloat(delta) < 0 ? `<span style="color:#3fb950;font-weight:bold">${delta}% 🚀</span>` : `<span style="color:#8b949e">+${delta}%</span>`;
+      const statusIcon = r.loss < globalBest ? '🏆' : '✅';
+      
+      return `<tr class="${rowClass}">
+        <td style="color:#8b949e">${statusIcon}</td>
+        <td style="font-weight:600">${r.exp_id}</td>
+        <td style="font-weight:bold; color:${r.loss < globalBest ? '#3fb950' : '#c9d1d9'}">${r.loss.toFixed(4)}</td>
+        <td>${ds}</td>
+        <td style="color:#8b949e;font-size:11px">${r.batch}</td>
+      </tr>`;
+    }).join('');
+    document.getElementById('results-table').innerHTML = `<table><tr><th></th><th>Experiment ID</th><th>Final Loss</th><th>vs Record</th><th>Batch</th></tr>${rows}</table>`;
+  });
 }
 
-updateDashboard();
-updateLeaderboard();
-updateResults();
-setInterval(updateDashboard, 3000);
-setInterval(updateLeaderboard, 10000);
-setInterval(updateResults, 10000);
+setInterval(updateDashboard, 2000);
+setInterval(updateLeaderboard, 5000);
+setInterval(updateResults, 5000);
+updateDashboard(); updateLeaderboard(); updateResults();
+</script>
+</body></html>
+
 </script>
 </body></html>
 """

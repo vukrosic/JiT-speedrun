@@ -1,77 +1,92 @@
 [
   {
-    "exp_id": "lr_3e-3_pmean5",
-    "hypothesis": "Re-sweep LR with P_mean=-5. The optimal LR may have shifted with the new noise schedule.",
-    "category": "exploration",
-    "parent_exp": "flash_attn_baseline",
+    "exp_id": "r17_pstd02",
+    "hypothesis": "Ultra-narrow noise focus (P_std=0.2)",
+    "category": "autonomous",
     "changes": {
-      "P_mean": "-5.0",
+      "P_std": "0.2"
+    },
+    "priority": 1,
+    "status": "done",
+    "batch": 17,
+    "result": 0.3013
+  },
+  {
+    "exp_id": "batch18_pm-5.0_ps0.2",
+    "hypothesis": "Combining noise mean -5.0 with std 0.2",
+    "category": "autonomous",
+    "changes": {
+      "P_std": "0.2",
+      "P_mean": "-5.0"
+    },
+    "priority": 1,
+    "status": "done",
+    "batch": 18,
+    "result": 0.3108
+  },
+  {
+    "exp_id": "batch18_pm-5.0_ps0.1",
+    "hypothesis": "Combining noise mean -5.0 with std 0.1",
+    "category": "autonomous",
+    "changes": {
+      "P_std": "0.1",
+      "P_mean": "-5.0"
+    },
+    "priority": 1,
+    "status": "done",
+    "batch": 18,
+    "result": 0.3108
+  },
+  {
+    "exp_id": "batch18_pm-8.0_ps0.2",
+    "hypothesis": "Combining noise mean -8.0 with std 0.2",
+    "category": "autonomous",
+    "changes": {
+      "P_std": "0.2",
+      "P_mean": "-8.0"
+    },
+    "priority": 1,
+    "status": "done",
+    "batch": 18,
+    "result": 0.3072
+  },
+  {
+    "exp_id": "batch18_pm-8.0_ps0.1",
+    "hypothesis": "Combining noise mean -8.0 with std 0.1",
+    "category": "autonomous",
+    "changes": {
+      "P_std": "0.1",
+      "P_mean": "-8.0"
+    },
+    "priority": 1,
+    "status": "done",
+    "batch": 18,
+    "result": 0.3072
+  },
+  {
+    "exp_id": "batch18_blr2e-3",
+    "hypothesis": "Pushing LR to 2e-3 with best noise schedule",
+    "category": "autonomous",
+    "changes": {
+      "P_std": "0.2",
+      "blr": "2e-3"
+    },
+    "priority": 1,
+    "status": "done",
+    "batch": 18,
+    "result": 0.2951
+  },
+  {
+    "exp_id": "batch18_blr3e-3",
+    "hypothesis": "Pushing LR to 3e-3 with best noise schedule",
+    "category": "autonomous",
+    "changes": {
+      "P_std": "0.2",
       "blr": "3e-3"
     },
     "priority": 1,
     "status": "done",
-    "batch": 13,
-    "result": 0.3137,
-    "time_s": 14.1
-  },
-  {
-    "exp_id": "lr_5e-3_pmean5",
-    "hypothesis": "LR 5e-3 with P_mean=-5 \u2014 high-noise targets may tolerate higher LR.",
-    "category": "exploration",
-    "parent_exp": "flash_attn_baseline",
-    "changes": {
-      "P_mean": "-5.0",
-      "blr": "5e-3"
-    },
-    "priority": 1,
-    "status": "done",
-    "batch": 13,
-    "result": 0.3266,
-    "time_s": 13.5
-  },
-  {
-    "exp_id": "lr_1e-2_pmean5",
-    "hypothesis": "LR 1e-2 with P_mean=-5 \u2014 aggressive LR for fast learning on easy (high-noise) targets.",
-    "category": "exploration",
-    "parent_exp": "flash_attn_baseline",
-    "changes": {
-      "P_mean": "-5.0",
-      "blr": "1e-2"
-    },
-    "priority": 1,
-    "status": "done",
-    "batch": 13,
-    "result": 0.7672,
-    "time_s": 14.0
-  },
-  {
-    "exp_id": "lr_2e-2_pmean5",
-    "hypothesis": "LR 2e-2 with P_mean=-5 \u2014 very aggressive.",
-    "category": "exploration",
-    "parent_exp": "flash_attn_baseline",
-    "changes": {
-      "P_mean": "-5.0",
-      "blr": "2e-2"
-    },
-    "priority": 1,
-    "status": "done",
-    "batch": 13,
-    "result": 11.7295,
-    "time_s": 14.2
-  },
-  {
-    "exp_id": "lr_7e-4_pmean5",
-    "hypothesis": "LR 7e-4 with P_mean=-5 \u2014 maybe lower LR is better now.",
-    "category": "exploration",
-    "parent_exp": "flash_attn_baseline",
-    "changes": {
-      "P_mean": "-5.0",
-      "blr": "7e-4"
-    },
-    "priority": 1,
-    "status": "done",
-    "batch": 13,
-    "result": 0.3156,
-    "time_s": 14.0
+    "batch": 18,
+    "result": 0.2671
   }
 ]
