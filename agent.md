@@ -142,3 +142,11 @@ Track failed experiments in plan.md. Don't re-run banned experiments or minor va
 ---
 
 Check if plan.md, leaderboard.md, experiment_log.md, queue.json, insights.md follow these instructions and structure, if not, update them according to these rules.
+
+---
+
+
+## 14. Storage Management
+
+- Immediately delete all .pth and model checkpoint files after verifying results and recording metrics.
+- NEVER keep heavy model files unless the user explicitly requests a specific checkpoint for export/analysis.
