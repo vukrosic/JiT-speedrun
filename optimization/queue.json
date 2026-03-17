@@ -1,69 +1,73 @@
 [
   {
-    "exp_id": "bs128_blr1e-3",
-    "hypothesis": "bs=128, blr=1e-3 (effective LR=5e-4) \u2014 test if lower effective LR is better with more steps",
+    "exp_id": "arch_bottleneck384",
+    "hypothesis": "bottleneck_dim=384 \u2014 continue probing upward. 256 was consistently near-threshold, try larger.",
     "category": "exploitation",
     "parent_exp": "control_bs128",
     "changes": {
-      "blr": "1e-3",
-      "batch_size": "128"
+      "bottleneck_dim": "384"
     },
     "priority": 1,
     "status": "done",
-    "batch": 6,
-    "result": 0.1207,
-    "time_s": 307.4
+    "batch": 8,
+    "result": 0.1141,
+    "time_s": 308.1
   },
   {
-    "exp_id": "bs128_blr3e-3",
-    "hypothesis": "bs=128, blr=3e-3 (effective LR=1.5e-3) \u2014 push LR higher at bs=128",
+    "exp_id": "arch_bottleneck512",
+    "hypothesis": "bottleneck_dim=512 \u2014 upper bound probe. Bottleneck approaches hidden_size (768).",
+    "category": "exploration",
+    "parent_exp": "control_bs128",
+    "changes": {
+      "bottleneck_dim": "512"
+    },
+    "priority": 1,
+    "status": "done",
+    "batch": 8,
+    "result": 0.1138,
+    "time_s": 307.6
+  },
+  {
+    "exp_id": "arch_bottleneck256_incontext64",
+    "hypothesis": "Combine two best near-threshold changes: bottleneck_dim=256 + in_context_len=64. Test if gains compound.",
     "category": "exploitation",
     "parent_exp": "control_bs128",
     "changes": {
-      "blr": "3e-3",
-      "batch_size": "128"
+      "bottleneck_dim": "256",
+      "in_context_len": "64"
     },
     "priority": 1,
-    "status": "running",
-    "batch": 6
+    "status": "done",
+    "batch": 8,
+    "result": 0.1526,
+    "time_s": 176.3
   },
   {
-    "exp_id": "bs128_blr4e-3",
-    "hypothesis": "bs=128, blr=4e-3 (effective LR=2e-3) \u2014 at bs=256 this diverged, but smaller batches may stabilize",
+    "exp_id": "arch_incontext16",
+    "hypothesis": "Halve in-context tokens (16 vs 32). Test if fewer tokens with same capacity is better.",
     "category": "exploration",
     "parent_exp": "control_bs128",
     "changes": {
-      "blr": "4e-3",
-      "batch_size": "128"
-    },
-    "priority": 1,
-    "status": "pending",
-    "batch": 6
-  },
-  {
-    "exp_id": "bs128_blr6e-3",
-    "hypothesis": "bs=128, blr=6e-3 (effective LR=3e-3) \u2014 upper bound probe, likely diverges",
-    "category": "exploration",
-    "parent_exp": "control_bs128",
-    "changes": {
-      "blr": "6e-3",
-      "batch_size": "128"
+      "in_context_len": "16"
     },
     "priority": 2,
-    "status": "pending",
-    "batch": 6
+    "status": "done",
+    "batch": 8,
+    "result": 0.4035,
+    "time_s": 51.9
   },
   {
-    "exp_id": "bs128_blr15e-4",
-    "hypothesis": "bs=128, blr=1.5e-3 (effective LR=7.5e-4) \u2014 fine-grained between 1e-3 and 2e-3 effective",
-    "category": "exploitation",
+    "exp_id": "arch_mlp3",
+    "hypothesis": "mlp_ratio=3.0 \u2014 test if smaller FFN (fewer params, faster) hurts or helps. Reallocates capacity.",
+    "category": "exploration",
     "parent_exp": "control_bs128",
     "changes": {
-      "blr": "1.5e-3",
-      "batch_size": "128"
+      "mlp_ratio": "3.0"
     },
-    "priority": 1,
-    "status": "pending",
-    "batch": 6
+    "priority": 2,
+    "status": "failed",
+    "batch": 8,
+    "result": null,
+    "time_s": 10.9
   }
 ]

@@ -15,6 +15,10 @@ class Denoiser(nn.Module):
             num_classes=args.class_num,
             attn_drop=args.attn_dropout,
             proj_drop=args.proj_dropout,
+            mlp_ratio=args.mlp_ratio,
+            bottleneck_dim=args.bottleneck_dim,
+            in_context_len=args.in_context_len,
+            in_context_start=args.in_context_start,
         )
         self.img_size = args.img_size
         self.num_classes = args.class_num

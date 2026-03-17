@@ -60,4 +60,33 @@
 | arch_incontext_early | in_context_start=0 | OOM | — | 13s | Retry bs=128 |
 | arch_incontext64 | in_context_len=64 | OOM | — | 11s | Retry bs=128 |
 
-**Batch 5 partial: bottleneck256 promising (-0.0022, just below noise floor). OOM retries running at bs=128 with blr=2e-3.**
+**Batch 5 partial: bottleneck256 promising (-0.0022, just below noise floor). OOM retries needed at bs=128.**
+
+## Batch 6 — Batch Size Validation (128px, 9 epochs)
+| Exp ID | Config | Final Loss | Δ vs best (0.1166) | Time | Notes |
+|--------|--------|-----------|-------------------|------|-------|
+| bs256_ep9 | bs=256, blr=1e-3, 9ep | 0.1518 | +30.2% | 188s | Much worse than bs=128. Confirms bs=128 superiority |
+
+**Batch 6: bs=256 with extra epoch can't match bs=128. More gradient steps > larger batches. Moving to architecture ablations with bs=128 config.**
+
+## Batch 7 — Architecture Ablations (128px, bs=128, 8 epochs, blr=2e-3, constant, warmup=1)
+| Exp ID | Change | Final Loss | Δ vs best (0.1166) | Time | Notes |
+|--------|--------|-----------|-------------------|------|-------|
+| arch_bottleneck256_v2 | bottleneck_dim=256 | 0.1149 | -0.0017 | 308s | Best but below noise floor |
+| arch_incontext64 | in_context_len=64 | 0.1164 | -0.0002 | 355s | Marginal |
+| arch_mlp6 | mlp_ratio=6.0 | 0.1168 | +0.0002 | 323s | No improvement |
+| arch_incontext_start2 | in_context_start=2 | 0.1176 | +0.0010 | 308s | Worse |
+| arch_incontext_start0 | in_context_start=0 | 0.1178 | +0.0012 | 319s | Worse |
+
+**Batch 7: no leaderboard improvements (best delta -0.0017 < noise floor 0.0026). bottleneck_dim=256 consistently near-threshold across two configs. Earlier in-context injection hurts. Continue probing bottleneck_dim.**
+
+## Batch 8 — Architecture: Bottleneck Sweep + Combos (128px, bs=128, 8 epochs, blr=2e-3)
+| Exp ID | Change | Final Loss | Δ vs best (0.1166) | Time | Notes |
+|--------|--------|-----------|-------------------|------|-------|
+| arch_bottleneck384 | bottleneck_dim=384 | 0.1141 | -0.0025 | 308s | Near threshold |
+| arch_bottleneck512 | bottleneck_dim=512 | 0.1138 | -0.0028 | 308s | **NEW BEST — beats noise floor!** |
+| arch_bottleneck256_incontext64 | bottleneck=256+incontext=64 | 0.1526 | +30.9% | 176s | Much worse — combo doesn't work |
+| arch_incontext16 | in_context_len=16 | — | — | killed | Interrupted |
+| arch_mlp3 | mlp_ratio=3.0 | — | — | skipped | Interrupted |
+
+**Batch 8: bottleneck512 is new best (0.1138). Clear monotonic trend: 128→256→384→512 keeps improving. Combo of bottleneck+incontext diverged. Pivoting to rapid diverse exploration.**

@@ -29,6 +29,10 @@ def get_args_parser():
     parser.add_argument('--img_size', default=256, type=int, help='Image size')
     parser.add_argument('--attn_dropout', type=float, default=0.0, help='Attention dropout rate')
     parser.add_argument('--proj_dropout', type=float, default=0.0, help='Projection dropout rate')
+    parser.add_argument('--mlp_ratio', type=float, default=4.0, help='MLP hidden dim ratio')
+    parser.add_argument('--bottleneck_dim', type=int, default=128, help='Patch embed bottleneck dim')
+    parser.add_argument('--in_context_len', type=int, default=32, help='Number of in-context class tokens')
+    parser.add_argument('--in_context_start', type=int, default=4, help='Layer index where in-context tokens are injected')
 
     # training
     parser.add_argument('--epochs', default=200, type=int)

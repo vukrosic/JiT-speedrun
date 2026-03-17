@@ -28,19 +28,23 @@
 - warmup=1 is the sweet spot; warmup=3 catastrophically diverges at blr=1e-3
 
 ## Open Questions
-- Does weight decay help or hurt for flow matching?
-- How sensitive is the model to noise schedule (P_mean, P_std)?
+- bottleneck_dim=256 consistently near-threshold (-0.0017 to -0.0022). Would bottleneck_dim=384 or 512 push past noise floor?
+- Would combining bottleneck_dim=256 + in_context_len=64 compound the small gains?
 - Will results at 128px transfer to 256px?
 
 ## Banlist
 - warmup=3 + constant LR at blr=1e-3: diverges (NaN)
 - cosine schedule: consistently worse than constant in short runs
+- in_context_start=0: worse than default (layer 4)
+- in_context_start=2: worse than default
+- bs=256 at 9 epochs: 30% worse than bs=128 at 8 epochs
 
 ## Category Status
-- Optimization/LR: **exhausted** — peak at 1e-3
+- Optimization/LR: **exhausted** — peak at 1e-3 (bs=256), 2e-3 (bs=128)
 - LR Schedule + Warmup: **exhausted** — constant + warmup=1 is best
-- Weight Decay: **exhausted** — marginal, non-monotonic, within noise floor. Best: wd=0.05 or 1e-3 (~0.001 improvement)
-- Noise Schedule: **active** — batch 5
+- Weight Decay: **exhausted** — marginal, within noise floor
+- Batch Size: **exhausted** — bs=128 is optimal (9% improvement)
+- Architecture: **active** — bottleneck_dim promising, in-context injection position exhausted
+- Noise Schedule: queued
 - Gradient Clipping: queued
 - Regularization: queued
-- Architecture: queued
