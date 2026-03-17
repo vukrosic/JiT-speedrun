@@ -51,6 +51,8 @@ In early phases, run batches of ~5 experiments. Keep experiments within a batch 
 
 Work through hyperparameters in order of expected impact: LR → LR schedule → weight decay → noise schedule → warmup → gradient clipping → regularization → architecture. Only move to the next hyperparameter after you've found a good value for the current one. When systematic tuning plateaus (no improvement for 15+ experiments), shift to more exploratory/creative experiments.
 
+Do not experiment on data composition or data, just the model.
+
 ### Continue when the pattern is clear
 
 If a batch of experiments shows a clear monotonic trend (e.g., increasing LR keeps improving loss with no plateau) or something else like this, do NOT move on to the next hyperparameter, idea or architecture change. Instead, design the next batch to continue probing in the same direction (e.g., even higher LRs) until you find the peak or a reversal. Only move to the next type of experiment once the current one is exhausted. Think if this is the case.
@@ -78,6 +80,8 @@ Queue format:
  "parent_exp": "baseline", "changes": {}, "priority": 1,
  "status": "pending|running|done|failed", "batch": 1}
 ```
+
+**queue.json contains only the current batch.** Completed batches are already recorded in experiment_log.md and leaderboard.md — do not carry them forward in the queue.
 
 ---
 

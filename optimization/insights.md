@@ -15,22 +15,31 @@
 
 ## What Doesn't Work
 - LR > 1e-3: sharp reversal, divergence above 2e-3
-- Very low LR (2e-5): underfits in 8 epochs
+- Very low LR (2e-5): underfits
+- Cosine LR schedule: uniformly worse than constant in 8-epoch runs
+- warmup=0 with constant: spike causes instability
+- warmup=3 with constant: diverged (NaN at 44s) — too many low-LR epochs then hard transition
 
 ## Surprising Findings
 - Default LR (5e-5) was ~20x too low for bs=256 at 128px
 - Optimal LR is 1e-3 (20x default). Very sharp cliff above that.
-- Gap between 1e-3 and 2e-3 is steep — optimal is likely right at 1e-3
+- Cosine decay actively hurts in short proxy runs — spending epochs at reduced LR costs more than it gains
+- warmup=1 is the sweet spot; warmup=3 catastrophically diverges at blr=1e-3
 
 ## Open Questions
-- Does cosine LR schedule improve over constant at blr=1e-3?
-- How sensitive is the model to noise schedule (P_mean, P_std)?
 - Does weight decay help or hurt for flow matching?
+- How sensitive is the model to noise schedule (P_mean, P_std)?
 - Will results at 128px transfer to 256px?
 
+## Banlist
+- warmup=3 + constant LR at blr=1e-3: diverges (NaN)
+- cosine schedule: consistently worse than constant in short runs
+
 ## Category Status
-- Optimization/LR: **exhausted** — peak found at 1e-3
-- LR Schedule: **active** — batch 3
-- Training/Data: queued
+- Optimization/LR: **exhausted** — peak at 1e-3
+- LR Schedule + Warmup: **exhausted** — constant + warmup=1 is best
+- Weight Decay: **active** — batch 4
+- Noise Schedule: queued
+- Gradient Clipping: queued
 - Regularization: queued
 - Architecture: queued

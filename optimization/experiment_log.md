@@ -28,3 +28,14 @@
 | lr_5e-3 | 5e-3 | 0.3277 | +142.2% | 269s | Diverged |
 
 **Batch 2 winner: lr_1e-3 (0.1282). LR peak found. Sharp reversal above 1e-3. Moving to LR schedule.**
+
+## Batch 3 — LR Schedule + Warmup (128px, bs=256, 8 epochs, blr=1e-3)
+| Exp ID | Schedule | Warmup | Final Loss | Δ vs lr_1e-3 | Time | Notes |
+|--------|----------|--------|-----------|--------------|------|-------|
+| sched_cosine | cosine | 1 | 0.1312 | +2.3% | 266s | |
+| sched_cosine_warmup2 | cosine | 2 | 0.1306 | +1.9% | 266s | |
+| sched_cosine_warmup0 | cosine | 0 | 0.1300 | +1.4% | 264s | |
+| warmup0_constant | constant | 0 | 0.1366 | +6.6% | 268s | |
+| warmup3_constant | constant | 3 | 0.6064 | diverged | 44s | NaN/diverge — banlist |
+
+**Batch 3: no improvement. Constant LR + warmup=1 remains best. Cosine hurts in short runs. Moving to weight decay.**

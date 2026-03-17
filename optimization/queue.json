@@ -1,139 +1,67 @@
 [
   {
-    "exp_id": "lr_7e-4",
-    "hypothesis": "14x baseline LR \u2014 continuing monotonic improvement trend from batch 1",
-    "category": "exploitation",
-    "parent_exp": "lr_5e-4",
-    "changes": {
-      "blr": "7e-4"
-    },
-    "priority": 1,
-    "status": "done",
-    "batch": 2,
-    "result": 0.1322,
-    "time_s": 264.4
-  },
-  {
-    "exp_id": "lr_1e-3",
-    "hypothesis": "20x baseline LR \u2014 probing further up the LR curve",
-    "category": "exploitation",
-    "parent_exp": "lr_5e-4",
-    "changes": {
-      "blr": "1e-3"
-    },
-    "priority": 1,
-    "status": "done",
-    "batch": 2,
-    "result": 0.1282,
-    "time_s": 264.6
-  },
-  {
-    "exp_id": "lr_2e-3",
-    "hypothesis": "40x baseline LR \u2014 testing for divergence threshold",
-    "category": "exploitation",
-    "parent_exp": "lr_5e-4",
-    "changes": {
-      "blr": "2e-3"
-    },
-    "priority": 1,
-    "status": "done",
-    "batch": 2,
-    "result": 0.1517,
-    "time_s": 261.4
-  },
-  {
-    "exp_id": "lr_3e-3",
-    "hypothesis": "60x baseline LR \u2014 likely near divergence boundary",
-    "category": "exploitation",
-    "parent_exp": "lr_5e-4",
-    "changes": {
-      "blr": "3e-3"
-    },
-    "priority": 1,
-    "status": "done",
-    "batch": 2,
-    "result": 0.1964,
-    "time_s": 264.0
-  },
-  {
-    "exp_id": "lr_5e-3",
-    "hypothesis": "100x baseline LR \u2014 extreme, likely diverges but establishes upper bound",
-    "category": "exploration",
-    "parent_exp": "lr_5e-4",
-    "changes": {
-      "blr": "5e-3"
-    },
-    "priority": 1,
-    "status": "done",
-    "batch": 2,
-    "result": 0.3277,
-    "time_s": 269.4
-  },
-  {
-    "exp_id": "sched_cosine",
-    "hypothesis": "Cosine LR schedule at blr=1e-3 \u2014 may improve over constant by decaying LR at end of training",
+    "exp_id": "wd_0.01",
+    "hypothesis": "Weight decay 0.01 \u2014 mild regularization, common default for transformers",
     "category": "exploitation",
     "parent_exp": "lr_1e-3",
     "changes": {
       "blr": "1e-3",
-      "lr_schedule": "cosine"
+      "weight_decay": "0.01"
     },
     "priority": 1,
     "status": "running",
-    "batch": 3
+    "batch": 4
   },
   {
-    "exp_id": "sched_cosine_warmup2",
-    "hypothesis": "Cosine schedule + 2 epochs warmup at blr=1e-3 \u2014 more warmup may help with high LR",
+    "exp_id": "wd_0.05",
+    "hypothesis": "Weight decay 0.05 \u2014 moderate, used in MAE/ViT finetuning",
     "category": "exploitation",
     "parent_exp": "lr_1e-3",
     "changes": {
       "blr": "1e-3",
-      "lr_schedule": "cosine",
-      "warmup_epochs": "2"
+      "weight_decay": "0.05"
     },
-    "priority": 2,
+    "priority": 1,
     "status": "pending",
-    "batch": 3
+    "batch": 4
   },
   {
-    "exp_id": "sched_cosine_warmup0",
-    "hypothesis": "Cosine schedule + 0 warmup at blr=1e-3 \u2014 no warmup to test if warmup hurts with cosine",
-    "category": "exploration",
-    "parent_exp": "lr_1e-3",
-    "changes": {
-      "blr": "1e-3",
-      "lr_schedule": "cosine",
-      "warmup_epochs": "0"
-    },
-    "priority": 2,
-    "status": "pending",
-    "batch": 3
-  },
-  {
-    "exp_id": "warmup0_constant",
-    "hypothesis": "Constant schedule + 0 warmup \u2014 tests if warmup=1 is hurting or neutral",
-    "category": "exploration",
-    "parent_exp": "lr_1e-3",
-    "changes": {
-      "blr": "1e-3",
-      "warmup_epochs": "0"
-    },
-    "priority": 2,
-    "status": "pending",
-    "batch": 3
-  },
-  {
-    "exp_id": "warmup3_constant",
-    "hypothesis": "Constant schedule + 3 epochs warmup \u2014 longer warmup may stabilize high LR training",
+    "exp_id": "wd_0.1",
+    "hypothesis": "Weight decay 0.1 \u2014 stronger regularization",
     "category": "exploitation",
     "parent_exp": "lr_1e-3",
     "changes": {
       "blr": "1e-3",
-      "warmup_epochs": "3"
+      "weight_decay": "0.1"
+    },
+    "priority": 1,
+    "status": "pending",
+    "batch": 4
+  },
+  {
+    "exp_id": "wd_0.3",
+    "hypothesis": "Weight decay 0.3 \u2014 aggressive, likely over-regularizes in short runs",
+    "category": "exploration",
+    "parent_exp": "lr_1e-3",
+    "changes": {
+      "blr": "1e-3",
+      "weight_decay": "0.3"
     },
     "priority": 2,
     "status": "pending",
-    "batch": 3
+    "batch": 4
+  },
+  {
+    "exp_id": "wd_1e-3",
+    "hypothesis": "Weight decay 1e-3 \u2014 very mild, close to none, sanity check",
+    "category": "exploration",
+    "parent_exp": "lr_1e-3",
+    "changes": {
+      "blr": "1e-3",
+      "weight_decay": "1e-3"
+    },
+    "priority": 2,
+    "status": "pending",
+    "batch": 4
   }
 ]

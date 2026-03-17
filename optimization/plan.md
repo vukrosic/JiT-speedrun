@@ -47,4 +47,5 @@ Single-variable discipline: each experiment changes at most one thing from its p
 - If no improvement after 15 experiments: reset analysis
 
 ## Banlist
-(none yet)
+- warmup=3 + constant LR at blr=1e-3: diverges (NaN, 44s)
+- cosine schedule: consistently worse than constant in 8-epoch proxy runs
