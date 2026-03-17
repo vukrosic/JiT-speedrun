@@ -1,6 +1,7 @@
 # Optimization Insights
 
 ## What Works
+- **Smaller batch size (bs=128 vs 256)**: 9% improvement, same effective LR but 2x more gradient steps. Biggest single improvement since LR tuning.
 - **Higher learning rates up to 1e-3**: Full LR curve mapped.
   - 2e-5: 0.2314 (worse than baseline)
   - 5e-5: 0.1923 (baseline)
@@ -38,8 +39,8 @@
 ## Category Status
 - Optimization/LR: **exhausted** — peak at 1e-3
 - LR Schedule + Warmup: **exhausted** — constant + warmup=1 is best
-- Weight Decay: **active** — batch 4
-- Noise Schedule: queued
+- Weight Decay: **exhausted** — marginal, non-monotonic, within noise floor. Best: wd=0.05 or 1e-3 (~0.001 improvement)
+- Noise Schedule: **active** — batch 5
 - Gradient Clipping: queued
 - Regularization: queued
 - Architecture: queued
