@@ -21,11 +21,12 @@
 - Proxy preserves: same architecture, same optimizer, same param count
 
 ## Baseline
-- **Mean loss: 0.1923** (seeds: 0.1904, 0.1937, 0.1928)
-- Config: 128px, bs=256, blr=5e-5, 8 epochs, warmup=1, constant LR, no weight decay
+- **Active best: lr_1e-3 → loss: 0.1282** | Must beat: 0.1256
+- Config: 128px, bs=256, blr=1e-3, 8 epochs, warmup=1, constant LR, no weight decay
+- Original baseline: 0.1923 (blr=5e-5)
 
 ## Noise Floor
-- **Std: 0.0017 | Min detectable improvement: 0.0026 | Must beat: 0.1897**
+- **Std: 0.0017 | Min detectable improvement: 0.0026 | Must beat: 0.1256**
 
 ## Experiment Order
 1. **LR sweep** (first batch, ~5 experiments): blr in [1e-5, 2e-5, 5e-5, 1e-4, 2e-4]
