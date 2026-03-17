@@ -1,6 +1,6 @@
 {
-  "schedule_idx": 5,
-  "batch_num": 68,
+  "schedule_idx": 6,
+  "batch_num": 69,
   "current_config": {
     "model": "JiT-B/16",
     "img_size": "128",
@@ -31,5 +31,5 @@
   },
   "phase": "sweep",
   "refinements_done": 0,
-  "no_improve_count": 5
+  "no_improve_count": 6
 }
