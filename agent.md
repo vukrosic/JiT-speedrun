@@ -18,6 +18,8 @@ Before any experiments, understand the setup. Record findings in `optimization/r
 
 ## 2. Scaling Decision
 
+**Hard limit: every experiment must complete in ≤ 5 minutes.** Use 128px resolution with a large batch size to fill VRAM (≥80%) while staying within the time budget. Calibrate batch size to find the largest that fits in VRAM at 128px, then set epochs so total wall time ≤ 5 min.
+
 ```
 < 5 min/run   → full model, full data
 5–30 min/run  → full model, reduced data. Confirm winners at full budget.
@@ -129,7 +131,7 @@ Maintain `optimization/insights.md`: what works, what doesn't, surprising findin
 
 ## 12. GPU Memory
 
-Use ≥80% of available VRAM. Prefer increasing resolution over batch size. If usage drops below 70%, stop and reconfigure. Calibrate VRAM before first batch.
+Use ≥80% of available VRAM. Prefer increasing batch size over resolution to fill VRAM. If usage drops below 70%, stop and reconfigure. Calibrate VRAM before first batch.
 
 ---
 
