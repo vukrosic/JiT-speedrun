@@ -1,8 +1,8 @@
 # Experiment Log
 
-## Baseline Runs (256px)
-| Exp ID | Seed | Final Loss | Notes |
-|--------|------|-----------|-------|
-| baseline_256_seed0 | 0 | 0.1471 | 21min, 21GB VRAM |
-| baseline_256_seed1 | 1 | pending | |
-| baseline_256_seed2 | 2 | pending | |
+## Baseline Runs (128px, bs=256, 8 epochs)
+| Exp ID | Seed | Final Loss | Time | Notes |
+|--------|------|-----------|------|-------|
+| baseline_seed0 | 0 | pending | | |
+| baseline_seed1 | 1 | pending | | |
+| baseline_seed2 | 2 | pending | | |

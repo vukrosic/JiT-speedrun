@@ -1,0 +1,32 @@
+[
+  {
+    "exp_id": "baseline_seed0",
+    "hypothesis": "Establish baseline at 128px bs=256 config",
+    "category": "exploitation",
+    "parent_exp": "none",
+    "changes": {},
+    "priority": 0,
+    "status": "pending",
+    "batch": 0
+  },
+  {
+    "exp_id": "baseline_seed1",
+    "hypothesis": "Noise floor measurement",
+    "category": "exploitation",
+    "parent_exp": "none",
+    "changes": {"seed": "1"},
+    "priority": 0,
+    "status": "pending",
+    "batch": 0
+  },
+  {
+    "exp_id": "baseline_seed2",
+    "hypothesis": "Noise floor measurement",
+    "category": "exploitation",
+    "parent_exp": "none",
+    "changes": {"seed": "2"},
+    "priority": 0,
+    "status": "pending",
+    "batch": 0
+  }
+]

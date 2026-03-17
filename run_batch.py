@@ -13,17 +13,17 @@ LOG_FILE = "optimization/experiment_log.md"
 # Base config that all experiments inherit from (matching current best baseline)
 BASE_ARGS = [
     "--model", "JiT-B/16",
-    "--img_size", "256",
+    "--img_size", "128",
     "--noise_scale", "1.0",
-    "--batch_size", "64",
+    "--batch_size", "256",
     "--blr", "5e-5",
-    "--epochs", "10",
+    "--epochs", "8",
     "--warmup_epochs", "1",
     "--class_num", "10",
     "--data_path", "data/imagenette2-320",
     "--num_workers", "4",
     "--save_last_freq", "100",
-    "--log_freq", "50",
+    "--log_freq", "10",
     "--seed", "0",
 ]
 
