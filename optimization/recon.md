@@ -28,8 +28,8 @@
 
 ## Default Hyperparameters
 - blr: 5e-5 (scaled by batch_size/256)
-- batch_size: 128 per GPU (original 8-GPU setup)
-- warmup_epochs: 5
+- batch_size: 64 per GPU
+- warmup_epochs: 1
 - lr_schedule: constant
 - weight_decay: 0.0
 - ema_decay1: 0.9999, ema_decay2: 0.9996
@@ -39,12 +39,12 @@
 - attn_dropout: 0.0, proj_dropout: 0.0
 - img_size: 256, patch_size: 16
 
-## Proxy Setup
-- img_size: 128 (vs 256 original) → 64 tokens vs 256 tokens
+## Training Setup (256px)
+- img_size: 256 → 256 tokens (16x16 patches)
 - batch_size: 64 (single GPU)
 - class_num: 10 (Imagenette)
-- ~45 seconds per epoch, 8.2GB VRAM
-- 10 epochs per experiment (~7.5 minutes)
+- ~2 min per epoch, ~21GB VRAM (87% utilization)
+- 10 epochs per experiment (~21 minutes)
 
 ## Tunable Axes
 ### Architecture

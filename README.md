@@ -148,3 +148,6 @@ ORCD Seed Fund Grants for supporting GPU resources.
 ### Contact
 
 If you have any questions, feel free to contact me through email (tianhong@mit.edu). Enjoy!
+
+---
+tmux attach-session -t my-claude-session

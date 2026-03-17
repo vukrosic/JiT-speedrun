@@ -146,6 +146,8 @@ Before running any experiments, write `optimization/plan.md` containing:
 
 **Update this file after every batch.** It is your living strategy document.
 
+Important: Write reasoning in plain sentences, not just bullet points or tables. Explain the plan shortly.
+
 ---
 
 ## 4. Experiment Execution Framework

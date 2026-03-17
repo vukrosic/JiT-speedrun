@@ -1,10 +1,10 @@
 # Leaderboard
 
-**Active baseline:** baseline | loss: 0.1772 | 2026-03-16
-**Noise floor:** 0.0028 | **Min detectable improvement:** 0.0042 | **Threshold:** < 0.1730
+**Active baseline:** baseline_256 | loss: 0.1471 (seed0 only, pending noise floor) | 2026-03-17
+**Noise floor:** pending (need seeds 1,2) | **Min detectable improvement:** pending
 
 ## Historical Progression
 
 | Rank | Exp ID | Metric | Δ vs Previous | % Improvement | Key Change | Batch |
 |------|--------|--------|---------------|---------------|------------|-------|
-| 1 | baseline | 0.1772 | — | — | Default config | 0 |
+| 1 | baseline_256 | 0.1471 | — | — | Default config @ 256px | 0 |
