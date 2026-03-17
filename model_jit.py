@@ -218,7 +218,13 @@ class JiT(nn.Module):
         num_classes=1000,
         bottleneck_dim=128,
         in_context_len=32,
-        in_context_start=8
+        in_context_start=8,
+        # Architecture innovations
+        learned_pos_embed=False,      # Learnable position embeddings instead of fixed sin-cos
+        skip_connections=False,        # U-Net style skip connections between symmetric layers
+        sandwich_norm=False,           # Extra norm after attention and FFN (Sub-LN / sandwich)
+        shared_adaln=False,            # Share adaLN modulation across all blocks
+        zero_init_residual_scale=False, # Learnable per-block residual scaling initialized to small value
     ):
         super().__init__()
         self.in_channels = in_channels
@@ -230,6 +236,7 @@ class JiT(nn.Module):
         self.in_context_len = in_context_len
         self.in_context_start = in_context_start
         self.num_classes = num_classes
+        self.skip_connections = skip_connections
 
         # time and class embed
         self.t_embedder = TimestepEmbedder(hidden_size)
@@ -238,9 +245,15 @@ class JiT(nn.Module):
         # linear embed
         self.x_embedder = BottleneckPatchEmbed(input_size, patch_size, in_channels, bottleneck_dim, hidden_size, bias=True)
 
-        # use fixed sin-cos embedding
+        # positional embedding
         num_patches = self.x_embedder.num_patches
-        self.pos_embed = nn.Parameter(torch.zeros(1, num_patches, hidden_size), requires_grad=False)
+        if learned_pos_embed:
+            self.pos_embed = nn.Parameter(torch.zeros(1, num_patches, hidden_size), requires_grad=True)
+            torch.nn.init.normal_(self.pos_embed, std=0.02)
+        else:
+            self.pos_embed = nn.Parameter(torch.zeros(1, num_patches, hidden_size), requires_grad=False)
+
+        self.learned_pos_embed = learned_pos_embed
 
         # in-context cls token
         if self.in_context_len > 0:
@@ -261,6 +274,14 @@ class JiT(nn.Module):
             num_cls_token=self.in_context_len
         )
 
+        # shared adaLN: one modulation MLP for all blocks
+        self.shared_adaln = shared_adaln
+        if shared_adaln:
+            self.shared_adaln_mlp = nn.Sequential(
+                nn.SiLU(),
+                nn.Linear(hidden_size, 6 * hidden_size, bias=True)
+            )
+
         # transformer
         self.blocks = nn.ModuleList([
             JiTBlock(hidden_size, num_heads, mlp_ratio=mlp_ratio,
@@ -268,6 +289,26 @@ class JiT(nn.Module):
                      proj_drop=proj_drop if (depth // 4 * 3 > i >= depth // 4) else 0.0)
             for i in range(depth)
         ])
+
+        # sandwich norm: add extra post-attention and post-FFN norms
+        self.sandwich_norm = sandwich_norm
+        if sandwich_norm:
+            self.post_attn_norms = nn.ModuleList([RMSNorm(hidden_size, eps=1e-6) for _ in range(depth)])
+            self.post_ffn_norms = nn.ModuleList([RMSNorm(hidden_size, eps=1e-6) for _ in range(depth)])
+
+        # skip connections: U-Net style, connect layer i with layer (depth-1-i)
+        if skip_connections:
+            # Linear projections to merge skip connection (concat -> project)
+            self.skip_projs = nn.ModuleList([
+                nn.Linear(hidden_size * 2, hidden_size) for _ in range(depth // 2)
+            ])
+
+        # per-block residual scaling
+        self.zero_init_residual_scale = zero_init_residual_scale
+        if zero_init_residual_scale:
+            self.residual_scales = nn.ParameterList([
+                nn.Parameter(torch.ones(1) * 0.1) for _ in range(depth)
+            ])
 
         # linear predict
         self.final_layer = FinalLayer(hidden_size, patch_size, self.out_channels)
@@ -341,13 +382,63 @@ class JiT(nn.Module):
         x = self.x_embedder(x)
         x += self.pos_embed
 
+        depth = len(self.blocks)
+        skip_features = []
+
         for i, block in enumerate(self.blocks):
             # in-context
             if self.in_context_len > 0 and i == self.in_context_start:
                 in_context_tokens = y_emb.unsqueeze(1).repeat(1, self.in_context_len, 1)
                 in_context_tokens += self.in_context_posemb
                 x = torch.cat([in_context_tokens, x], dim=1)
-            x = block(x, c, self.feat_rope if i < self.in_context_start else self.feat_rope_incontext)
+
+            # U-Net skip: save features from first half, merge in second half
+            if self.skip_connections:
+                if i < depth // 2:
+                    skip_features.append(x)
+                elif i >= depth // 2:
+                    skip_idx = depth - 1 - i
+                    if skip_idx < len(skip_features):
+                        skip_x = skip_features[skip_idx]
+                        x = self.skip_projs[skip_idx](torch.cat([x, skip_x], dim=-1))
+
+            # shared adaLN: replace block's own modulation with shared one
+            if self.shared_adaln:
+                rope = self.feat_rope if i < self.in_context_start else self.feat_rope_incontext
+                mod = self.shared_adaln_mlp(c)
+                shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = mod.chunk(6, dim=-1)
+                # Manual forward with shared modulation
+                attn_out = block.attn(modulate(block.norm1(x), shift_msa, scale_msa), rope=rope)
+                if self.sandwich_norm:
+                    attn_out = self.post_attn_norms[i](attn_out)
+                if self.zero_init_residual_scale:
+                    x = x + self.residual_scales[i] * gate_msa.unsqueeze(1) * attn_out
+                else:
+                    x = x + gate_msa.unsqueeze(1) * attn_out
+                ffn_out = block.mlp(modulate(block.norm2(x), shift_mlp, scale_mlp))
+                if self.sandwich_norm:
+                    ffn_out = self.post_ffn_norms[i](ffn_out)
+                if self.zero_init_residual_scale:
+                    x = x + self.residual_scales[i] * gate_mlp.unsqueeze(1) * ffn_out
+                else:
+                    x = x + gate_mlp.unsqueeze(1) * ffn_out
+            else:
+                rope = self.feat_rope if i < self.in_context_start else self.feat_rope_incontext
+                if self.sandwich_norm or self.zero_init_residual_scale:
+                    # Manual forward to inject sandwich norm / residual scaling
+                    mod = block.adaLN_modulation(c)
+                    shift_msa, scale_msa, gate_msa, shift_mlp, scale_mlp, gate_mlp = mod.chunk(6, dim=-1)
+                    attn_out = block.attn(modulate(block.norm1(x), shift_msa, scale_msa), rope=rope)
+                    if self.sandwich_norm:
+                        attn_out = self.post_attn_norms[i](attn_out)
+                    scale = self.residual_scales[i] if self.zero_init_residual_scale else 1.0
+                    x = x + scale * gate_msa.unsqueeze(1) * attn_out
+                    ffn_out = block.mlp(modulate(block.norm2(x), shift_mlp, scale_mlp))
+                    if self.sandwich_norm:
+                        ffn_out = self.post_ffn_norms[i](ffn_out)
+                    x = x + scale * gate_mlp.unsqueeze(1) * ffn_out
+                else:
+                    x = block(x, c, rope)
 
         x = x[:, self.in_context_len:]
 

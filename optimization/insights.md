@@ -27,24 +27,48 @@
 - Cosine decay actively hurts in short proxy runs — spending epochs at reduced LR costs more than it gains
 - warmup=1 is the sweet spot; warmup=3 catastrophically diverges at blr=1e-3
 
+## What Works (continued)
+- **Removing bottleneck** (bn768): consistent improvement, 128→256→384→512→768 is monotonic
+- **Late in-context injection** (start10): small additional benefit on top of bottleneck removal
+- **Rapid screening validates**: 2-epoch ranking correctly predicted 8-epoch winners
+
+## What Doesn't Work (continued)
+- in_context_len=64 + bottleneck combo: diverged (0.1526)
+- mlp_ratio=8: much worse (+9.5% at 2ep)
+- All dropout configs: hurt performance
+- P_std=1.2: much worse. P_mean=-0.4: worse. P_mean=-1.2: marginal.
+- Small bottleneck (bn64): very bad (+50% at 2ep)
+- in_context_len=8: bad (+26% at 2ep)
+
 ## Open Questions
-- bottleneck_dim=256 consistently near-threshold (-0.0017 to -0.0022). Would bottleneck_dim=384 or 512 push past noise floor?
-- Would combining bottleneck_dim=256 + in_context_len=64 compound the small gains?
+- Is bn768+start10 (0.1132) a real improvement or noise? Need seed runs.
+- What about grad clipping with the new architecture?
+- Would even later injection (start11) help? Only 1 layer sees tokens then.
 - Will results at 128px transfer to 256px?
 
 ## Banlist
 - warmup=3 + constant LR at blr=1e-3: diverges (NaN)
 - cosine schedule: consistently worse than constant in short runs
-- in_context_start=0: worse than default (layer 4)
-- in_context_start=2: worse than default
-- bs=256 at 9 epochs: 30% worse than bs=128 at 8 epochs
+- bs=256: 30% worse than bs=128
+- bn64: much worse
+- mlp_ratio=8: worse
+- P_std=1.2: much worse
+- dropout (any config): hurts
+
+## What Works (further)
+- **Grad clipping at 1.0**: small but consistent benefit in rapid screening. At full 8ep, ties with bn768 alone (0.1132).
+- **label_drop_prob=0.2**: slight improvement over 0.1 in rapid screening. Marginal at full length.
+- Plateau at ~0.1132 across many configs with bn768.
 
 ## Category Status
-- Optimization/LR: **exhausted** — peak at 1e-3 (bs=256), 2e-3 (bs=128)
+- Optimization/LR: **exhausted** — peak at 2e-3 (bs=128)
 - LR Schedule + Warmup: **exhausted** — constant + warmup=1 is best
 - Weight Decay: **exhausted** — marginal, within noise floor
-- Batch Size: **exhausted** — bs=128 is optimal (9% improvement)
-- Architecture: **active** — bottleneck_dim promising, in-context injection position exhausted
-- Noise Schedule: queued
-- Gradient Clipping: queued
-- Regularization: queued
+- Batch Size: **exhausted** — bs=128 is optimal
+- Architecture/Bottleneck: **exhausted** — bn768 is best (remove bottleneck)
+- Architecture/In-context: **exhausted** — late injection marginal, removing tokens doesn't help
+- Noise Schedule: **exhausted** — all changes hurt
+- Dropout/Regularization: **exhausted** — all hurt
+- Gradient Clipping: **exhausted** — gc=1.0 marginal, within noise at full length
+- Label Drop: **exhausted** — 0.2 marginal
+- **Overall: proxy plateau at ~0.1132. 40+ experiments without beating noise floor from 0.1138.**

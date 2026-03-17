@@ -21,12 +21,14 @@
 - Proxy preserves: same architecture, same optimizer, same param count
 
 ## Baseline
-- **Active best: lr_1e-3 → loss: 0.1282** | Must beat: 0.1256
-- Config: 128px, bs=256, blr=1e-3, 8 epochs, warmup=1, constant LR, no weight decay
-- Original baseline: 0.1923 (blr=5e-5)
+- **Active best: arch_bottleneck512 → loss: 0.1138** | Must beat: 0.1112
+- Practical best cluster: ~0.1132 (bn768 variants, within noise)
+- Config: 128px, bs=128, blr=2e-3, 8 epochs, warmup=1, constant LR, no WD, bottleneck_dim=512
+- Original baseline: 0.1923 (blr=5e-5, bs=256)
+- **Total improvement: 40.8% from original baseline**
 
 ## Noise Floor
-- **Std: 0.0017 | Min detectable improvement: 0.0026 | Must beat: 0.1256**
+- **Std: 0.0017 | Min detectable improvement: 0.0026 | Must beat: 0.1112**
 
 ## Experiment Order
 1. **LR sweep** (first batch, ~5 experiments): blr in [1e-5, 2e-5, 5e-5, 1e-4, 2e-4]

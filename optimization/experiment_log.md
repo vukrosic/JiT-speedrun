@@ -89,4 +89,48 @@
 | arch_incontext16 | in_context_len=16 | — | — | killed | Interrupted |
 | arch_mlp3 | mlp_ratio=3.0 | — | — | skipped | Interrupted |
 
-**Batch 8: bottleneck512 is new best (0.1138). Clear monotonic trend: 128→256→384→512 keeps improving. Combo of bottleneck+incontext diverged. Pivoting to rapid diverse exploration.**
+**Batch 8: bottleneck512 is new best (0.1138). Clear monotonic trend: 128→256→384→512 keeps improving. Combo of bottleneck+incontext diverged.**
+
+## Rapid Exploration — 20 × 2-epoch experiments (128px, bs=128, blr=2e-3)
+Top 5 (vs baseline_bn512 0.1755):
+| Exp ID | Change | Loss | Δ% |
+|--------|--------|------|-----|
+| rapid_ic_start10_bn512 | bn512+start10 | 0.1616 | -7.9% |
+| rapid_bn768 | bn768 (no bottleneck) | 0.1627 | -7.3% |
+| rapid_bn768_mlp3 | bn768+mlp3 | 0.1667 | -5.0% |
+| rapid_bn512_ic16_start6 | bn512+ic16+start6 | 0.1682 | -4.2% |
+| rapid_ic0_bn512 | bn512+no_incontext | 0.1716 | -2.2% |
+
+Bottom 5 (hurt): pstd_12 (0.3178), bn64 (0.2649), mlp8 (0.2365), drop_both (0.2239), ic8 (0.2212)
+
+## Batch 9 — Validation of Rapid Winners (128px, bs=128, 8 epochs, blr=2e-3)
+| Exp ID | Change | Final Loss | Δ vs best (0.1138) | Time | Notes |
+|--------|--------|-----------|-------------------|------|-------|
+| val_ic_start10_bn768 | bn768+start10 | 0.1132 | -0.0006 | 253s | Best ever but < noise floor |
+| val_bn768_mlp3 | bn768+mlp3 | 0.1135 | -0.0003 | 297s | |
+| val_bn768 | bn768 | 0.1137 | -0.0001 | 308s | |
+| val_bn512_ic16_start6 | bn512+ic16+start6 | 0.1143 | +0.0005 | 260s | |
+| val_ic_start10_bn512 | bn512+start10 | 0.1151 | +0.0013 | 267s | |
+
+**Batch 9: val_ic_start10_bn768 (0.1132) is absolute best but delta -0.0006 is within noise. Removing bottleneck (bn768) consistently helps. Late injection (start10) adds small benefit on top.**
+
+## Rapid Exploration Round 2 — 20 × 2-epoch experiments (bn768 base)
+Top 5 (vs control bn768+s10 0.1649):
+| Exp ID | Change | Loss | Δ% |
+|--------|--------|------|-----|
+| r2_gradclip1 | gc=1.0+bn768 | 0.1589 | -3.6% |
+| r2_labeldrop02 | ld=0.2+bn768 | 0.1613 | -2.2% |
+| r2_bn768_s10_gc1 | bn768+s10+gc1 | 0.1618 | -1.9% |
+| r2_labeldrop0 | ld=0+bn768 | 0.1621 | -1.7% |
+| r2_gradclip2 | gc=2.0+bn768 | 0.1627 | -1.3% |
+
+## Batch 10 — Validation: Grad Clip + Label Drop (128px, bs=128, 8 epochs, blr=2e-3)
+| Exp ID | Change | Final Loss | Δ vs best (0.1138) | Time | Notes |
+|--------|--------|-----------|-------------------|------|-------|
+| val_bn768_gc1 | bn768+gc1.0 | 0.1132 | -0.0006 | 308s | Tied best |
+| val_bn768_s10_gc1_ld02 | bn768+s10+gc1+ld0.2 | 0.1132 | -0.0006 | 248s | Tied best |
+| val_bn768_gc1_ld02 | bn768+gc1+ld0.2 | 0.1133 | -0.0005 | 568s | |
+| val_bn768_labeldrop02 | bn768+ld0.2 | 0.1134 | -0.0004 | 308s | |
+| val_bn768_s10_gc1 | bn768+s10+gc1 | 0.1137 | -0.0001 | 256s | |
+
+**Batch 10: All configs cluster at 0.1132-0.1137. No single addition clearly beats noise floor vs bn768 alone. Plateau reached at ~0.1132.**

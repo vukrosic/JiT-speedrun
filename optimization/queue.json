@@ -1,73 +1,76 @@
 [
   {
-    "exp_id": "arch_bottleneck384",
-    "hypothesis": "bottleneck_dim=384 \u2014 continue probing upward. 256 was consistently near-threshold, try larger.",
+    "exp_id": "bs64_blr4e-3_bn768",
+    "hypothesis": "bs=64 doubles gradient steps again (proven strategy: bs=256->128 gave 9%). Scale LR linearly with bs: blr=4e-3 gives effective LR=1e-3, same as optimal at bs=256.",
     "category": "exploitation",
-    "parent_exp": "control_bs128",
+    "parent_exp": "arch_bottleneck512",
     "changes": {
-      "bottleneck_dim": "384"
+      "batch_size": "64",
+      "blr": "4e-3",
+      "bottleneck_dim": "768"
     },
     "priority": 1,
     "status": "done",
-    "batch": 8,
-    "result": 0.1141,
-    "time_s": 308.1
+    "batch": 11,
+    "result": 0.1134,
+    "time_s": 298.1
   },
   {
-    "exp_id": "arch_bottleneck512",
-    "hypothesis": "bottleneck_dim=512 \u2014 upper bound probe. Bottleneck approaches hidden_size (768).",
-    "category": "exploration",
-    "parent_exp": "control_bs128",
-    "changes": {
-      "bottleneck_dim": "512"
-    },
-    "priority": 1,
-    "status": "done",
-    "batch": 8,
-    "result": 0.1138,
-    "time_s": 307.6
-  },
-  {
-    "exp_id": "arch_bottleneck256_incontext64",
-    "hypothesis": "Combine two best near-threshold changes: bottleneck_dim=256 + in_context_len=64. Test if gains compound.",
+    "exp_id": "bs64_blr3e-3_bn768",
+    "hypothesis": "bs=64 with slightly lower LR. At bs=128, blr=2e-3 was optimal \u2014 try same effective LR ratio but scaled down.",
     "category": "exploitation",
-    "parent_exp": "control_bs128",
+    "parent_exp": "arch_bottleneck512",
     "changes": {
-      "bottleneck_dim": "256",
-      "in_context_len": "64"
+      "batch_size": "64",
+      "blr": "3e-3",
+      "bottleneck_dim": "768"
     },
     "priority": 1,
-    "status": "done",
-    "batch": 8,
-    "result": 0.1526,
-    "time_s": 176.3
-  },
-  {
-    "exp_id": "arch_incontext16",
-    "hypothesis": "Halve in-context tokens (16 vs 32). Test if fewer tokens with same capacity is better.",
-    "category": "exploration",
-    "parent_exp": "control_bs128",
-    "changes": {
-      "in_context_len": "16"
-    },
-    "priority": 2,
-    "status": "done",
-    "batch": 8,
-    "result": 0.4035,
-    "time_s": 51.9
-  },
-  {
-    "exp_id": "arch_mlp3",
-    "hypothesis": "mlp_ratio=3.0 \u2014 test if smaller FFN (fewer params, faster) hurts or helps. Reallocates capacity.",
-    "category": "exploration",
-    "parent_exp": "control_bs128",
-    "changes": {
-      "mlp_ratio": "3.0"
-    },
-    "priority": 2,
     "status": "failed",
-    "batch": 8,
+    "batch": 11,
     "result": null,
-    "time_s": 10.9
+    "time_s": 9.2
+  },
+  {
+    "exp_id": "bs64_blr2e-3_bn768",
+    "hypothesis": "bs=64 keeping same blr as bs=128. Effective LR halved \u2014 maybe better stability with 2x more steps.",
+    "category": "exploitation",
+    "parent_exp": "arch_bottleneck512",
+    "changes": {
+      "batch_size": "64",
+      "blr": "2e-3",
+      "bottleneck_dim": "768"
+    },
+    "priority": 1,
+    "status": "running",
+    "batch": 11
+  },
+  {
+    "exp_id": "bs64_blr6e-3_bn768",
+    "hypothesis": "bs=64 with aggressive LR. Push higher to see if smaller batch stabilizes training at higher LR.",
+    "category": "exploration",
+    "parent_exp": "arch_bottleneck512",
+    "changes": {
+      "batch_size": "64",
+      "blr": "6e-3",
+      "bottleneck_dim": "768"
+    },
+    "priority": 1,
+    "status": "pending",
+    "batch": 11
+  },
+  {
+    "exp_id": "bs32_blr4e-3_bn768",
+    "hypothesis": "bs=32 = 8x gradient steps vs original bs=256. Extreme step count. If bs halving keeps helping, this could be big.",
+    "category": "exploration",
+    "parent_exp": "arch_bottleneck512",
+    "changes": {
+      "batch_size": "32",
+      "blr": "4e-3",
+      "bottleneck_dim": "768"
+    },
+    "priority": 1,
+    "status": "pending",
+    "batch": 11
   }
 ]

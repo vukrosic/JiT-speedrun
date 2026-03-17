@@ -26,43 +26,27 @@ BASE_ARGS = [
     "--seed", "0",
 ]
 
-# 20 diverse architecture experiments
+# Round 3: Go for bigger structural changes — more steps, different batch sizes
+# The biggest gain came from 2x gradient steps (bs=128 vs 256 = 9% improvement)
+# Try pushing further: bs=64 (4x steps vs bs=256), more epochs
 EXPERIMENTS = [
-    # Baseline control at 2 epochs
-    {"exp_id": "rapid_baseline", "changes": {}, "hypothesis": "2-epoch baseline with default arch"},
-    {"exp_id": "rapid_baseline_bn512", "changes": {"bottleneck_dim": "512"}, "hypothesis": "2-epoch baseline with current best (bn512)"},
+    # Batch size reduction — more gradient steps (the proven strategy)
+    {"exp_id": "r3_bs64_bn768", "changes": {"batch_size": "64", "blr": "4e-3", "bottleneck_dim": "768"}, "hypothesis": "bs=64 = 4x steps vs 256. Scale LR linearly."},
+    {"exp_id": "r3_bs64_bn768_blr3e3", "changes": {"batch_size": "64", "blr": "3e-3", "bottleneck_dim": "768"}, "hypothesis": "bs=64 with slightly lower LR"},
+    {"exp_id": "r3_bs64_bn768_blr2e3", "changes": {"batch_size": "64", "blr": "2e-3", "bottleneck_dim": "768"}, "hypothesis": "bs=64 keep same blr as bs=128"},
+    {"exp_id": "r3_bs64_bn768_blr6e3", "changes": {"batch_size": "64", "blr": "6e-3", "bottleneck_dim": "768"}, "hypothesis": "bs=64 push LR even higher"},
+    {"exp_id": "r3_bs32_bn768", "changes": {"batch_size": "32", "blr": "8e-3", "bottleneck_dim": "768"}, "hypothesis": "bs=32 = 8x steps. Extreme gradient step increase."},
+    {"exp_id": "r3_bs32_bn768_blr4e3", "changes": {"batch_size": "32", "blr": "4e-3", "bottleneck_dim": "768"}, "hypothesis": "bs=32 with moderate LR"},
 
-    # Bottleneck extremes
-    {"exp_id": "rapid_bn768", "changes": {"bottleneck_dim": "768"}, "hypothesis": "bottleneck=hidden_size, essentially removing bottleneck"},
-    {"exp_id": "rapid_bn64", "changes": {"bottleneck_dim": "64"}, "hypothesis": "Very narrow bottleneck — aggressive compression"},
+    # More epochs (stretch time budget)
+    {"exp_id": "r3_ep4_bn768", "changes": {"epochs": "4", "bottleneck_dim": "768"}, "hypothesis": "4 epochs at 2-epoch time budget — 2x training"},
+    {"exp_id": "r3_ep3_bs64_bn768", "changes": {"epochs": "3", "batch_size": "64", "blr": "4e-3", "bottleneck_dim": "768"}, "hypothesis": "3ep + bs=64 — maximizing steps"},
 
-    # MLP ratio variations
-    {"exp_id": "rapid_mlp2", "changes": {"mlp_ratio": "2.0"}, "hypothesis": "Much smaller FFN"},
-    {"exp_id": "rapid_mlp8", "changes": {"mlp_ratio": "8.0"}, "hypothesis": "Very large FFN — 2x default"},
-    {"exp_id": "rapid_mlp5_bn512", "changes": {"mlp_ratio": "5.0", "bottleneck_dim": "512"}, "hypothesis": "Bigger FFN + bigger bottleneck combo"},
+    # Optimizer params (never tested)
+    {"exp_id": "r3_beta2_099_bn768", "changes": {"bottleneck_dim": "768"}, "hypothesis": "Control with bn768 for comparison"},
 
-    # In-context variations
-    {"exp_id": "rapid_ic128", "changes": {"in_context_len": "128"}, "hypothesis": "4x in-context tokens"},
-    {"exp_id": "rapid_ic8", "changes": {"in_context_len": "8"}, "hypothesis": "Very few in-context tokens"},
-    {"exp_id": "rapid_ic0_bn512", "changes": {"in_context_len": "0", "bottleneck_dim": "512"}, "hypothesis": "No in-context + big bottleneck"},
-
-    # In-context start variations with bottleneck
-    {"exp_id": "rapid_ic_start6_bn512", "changes": {"in_context_start": "6", "bottleneck_dim": "512"}, "hypothesis": "Late injection (layer 6/12) + big bottleneck"},
-    {"exp_id": "rapid_ic_start10_bn512", "changes": {"in_context_start": "10", "bottleneck_dim": "512"}, "hypothesis": "Very late injection (layer 10/12) + big bottleneck"},
-
-    # Dropout experiments
-    {"exp_id": "rapid_attn_drop01", "changes": {"attn_dropout": "0.1"}, "hypothesis": "Light attention dropout for regularization"},
-    {"exp_id": "rapid_proj_drop01", "changes": {"proj_dropout": "0.1"}, "hypothesis": "Light projection dropout"},
-    {"exp_id": "rapid_drop_both", "changes": {"attn_dropout": "0.05", "proj_dropout": "0.05"}, "hypothesis": "Light dropout everywhere"},
-
-    # Noise schedule
-    {"exp_id": "rapid_pmean_neg12", "changes": {"P_mean": "-1.2"}, "hypothesis": "Shift noise distribution toward lower noise levels"},
-    {"exp_id": "rapid_pmean_neg04", "changes": {"P_mean": "-0.4"}, "hypothesis": "Shift noise toward higher noise levels"},
-    {"exp_id": "rapid_pstd_12", "changes": {"P_std": "1.2"}, "hypothesis": "Wider noise distribution"},
-
-    # Combos — wild cards
-    {"exp_id": "rapid_bn768_mlp3", "changes": {"bottleneck_dim": "768", "mlp_ratio": "3.0"}, "hypothesis": "No bottleneck + smaller FFN — reallocate params"},
-    {"exp_id": "rapid_bn512_ic16_start6", "changes": {"bottleneck_dim": "512", "in_context_len": "16", "in_context_start": "6"}, "hypothesis": "Big bottleneck + fewer late-injected tokens"},
+    # Different in_context_len with bs=64
+    {"exp_id": "r3_bs64_ic0_bn768", "changes": {"batch_size": "64", "blr": "4e-3", "bottleneck_dim": "768", "in_context_len": "0"}, "hypothesis": "bs=64 + no in-context — save compute for more steps"},
 ]
 
 def run_experiment(exp):

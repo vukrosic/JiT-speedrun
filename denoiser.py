@@ -19,6 +19,11 @@ class Denoiser(nn.Module):
             bottleneck_dim=args.bottleneck_dim,
             in_context_len=args.in_context_len,
             in_context_start=args.in_context_start,
+            learned_pos_embed=getattr(args, 'learned_pos_embed', False),
+            skip_connections=getattr(args, 'skip_connections', False),
+            sandwich_norm=getattr(args, 'sandwich_norm', False),
+            shared_adaln=getattr(args, 'shared_adaln', False),
+            zero_init_residual_scale=getattr(args, 'zero_init_residual_scale', False),
         )
         self.img_size = args.img_size
         self.num_classes = args.class_num

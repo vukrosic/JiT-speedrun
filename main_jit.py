@@ -33,6 +33,12 @@ def get_args_parser():
     parser.add_argument('--bottleneck_dim', type=int, default=128, help='Patch embed bottleneck dim')
     parser.add_argument('--in_context_len', type=int, default=32, help='Number of in-context class tokens')
     parser.add_argument('--in_context_start', type=int, default=4, help='Layer index where in-context tokens are injected')
+    # architecture innovations
+    parser.add_argument('--learned_pos_embed', action='store_true', help='Use learned positional embeddings instead of fixed sin-cos')
+    parser.add_argument('--skip_connections', action='store_true', help='U-Net style skip connections between symmetric layers')
+    parser.add_argument('--sandwich_norm', action='store_true', help='Extra normalization after attention and FFN (Sub-LN)')
+    parser.add_argument('--shared_adaln', action='store_true', help='Share adaLN modulation weights across all blocks')
+    parser.add_argument('--zero_init_residual_scale', action='store_true', help='Learnable per-block residual scaling init to 0.1')
 
     # training
     parser.add_argument('--epochs', default=200, type=int)
