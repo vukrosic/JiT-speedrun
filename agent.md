@@ -156,5 +156,5 @@ Check if plan.md, leaderboard.md, experiment_log.md, queue.json, insights.md fol
 
 ## 14. Storage Management
 
-- Immediately delete all .pth and model checkpoint files after verifying results and recording metrics.
-- NEVER keep heavy model files unless the user explicitly requests a specific checkpoint for export/analysis.
+- **Checkpoint saving is disabled in the training code.**
+- Never save .pth, .pt, or .ckpt files during optimization experiments, unless user explicitly says to.
