@@ -21,10 +21,11 @@
 - Proxy preserves: same architecture, same optimizer, same param count
 
 ## Baseline
-- Pending: need to run 3 seeds at new config (128px, bs=256, 8 epochs)
+- **Mean loss: 0.1923** (seeds: 0.1904, 0.1937, 0.1928)
+- Config: 128px, bs=256, blr=5e-5, 8 epochs, warmup=1, constant LR, no weight decay
 
 ## Noise Floor
-- Pending: need 3 seed runs to compute std and minimum detectable improvement
+- **Std: 0.0017 | Min detectable improvement: 0.0026 | Must beat: 0.1897**
 
 ## Experiment Order
 1. **LR sweep** (first batch, ~5 experiments): blr in [1e-5, 2e-5, 5e-5, 1e-4, 2e-4]
