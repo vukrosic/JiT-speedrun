@@ -1,82 +1,77 @@
 [
   {
-    "exp_id": "arch_shared_adaln_fix",
-    "hypothesis": "Re-run shared adaLN with DDP fix (previous run crashed due to unused parameters).",
+    "exp_id": "lr_3e-3_pmean5",
+    "hypothesis": "Re-sweep LR with P_mean=-5. The optimal LR may have shifted with the new noise schedule.",
     "category": "exploration",
-    "parent_exp": "arch_bottleneck512",
+    "parent_exp": "flash_attn_baseline",
     "changes": {
-      "bottleneck_dim": "768",
-      "shared_adaln": "true"
+      "P_mean": "-5.0",
+      "blr": "3e-3"
     },
     "priority": 1,
     "status": "done",
-    "batch": 14,
-    "result": 0.4282,
-    "time_s": 19.2
+    "batch": 13,
+    "result": 0.3137,
+    "time_s": 14.1
   },
   {
-    "exp_id": "arch_resscale_skip",
-    "hypothesis": "Combine top innovation (residual scaling) with skip connections. Both improve gradient flow in complementary ways.",
-    "category": "combination",
-    "parent_exp": "arch_residual_scale",
+    "exp_id": "lr_5e-3_pmean5",
+    "hypothesis": "LR 5e-3 with P_mean=-5 \u2014 high-noise targets may tolerate higher LR.",
+    "category": "exploration",
+    "parent_exp": "flash_attn_baseline",
     "changes": {
-      "bottleneck_dim": "768",
-      "zero_init_residual_scale": "true",
-      "skip_connections": "true"
+      "P_mean": "-5.0",
+      "blr": "5e-3"
     },
     "priority": 1,
     "status": "done",
-    "batch": 14,
-    "result": 0.6437,
-    "time_s": 19.3
+    "batch": 13,
+    "result": 0.3266,
+    "time_s": 13.5
   },
   {
-    "exp_id": "arch_resscale_sandwich",
-    "hypothesis": "Combine residual scaling with sandwich norm. Both stabilize training dynamics.",
-    "category": "combination",
-    "parent_exp": "arch_residual_scale",
+    "exp_id": "lr_1e-2_pmean5",
+    "hypothesis": "LR 1e-2 with P_mean=-5 \u2014 aggressive LR for fast learning on easy (high-noise) targets.",
+    "category": "exploration",
+    "parent_exp": "flash_attn_baseline",
     "changes": {
-      "bottleneck_dim": "768",
-      "zero_init_residual_scale": "true",
-      "sandwich_norm": "true"
+      "P_mean": "-5.0",
+      "blr": "1e-2"
     },
     "priority": 1,
     "status": "done",
-    "batch": 14,
-    "result": 0.4308,
-    "time_s": 19.6
+    "batch": 13,
+    "result": 0.7672,
+    "time_s": 14.0
   },
   {
-    "exp_id": "arch_resscale_learned",
-    "hypothesis": "Combine residual scaling with learned positional embeddings.",
-    "category": "combination",
-    "parent_exp": "arch_residual_scale",
+    "exp_id": "lr_2e-2_pmean5",
+    "hypothesis": "LR 2e-2 with P_mean=-5 \u2014 very aggressive.",
+    "category": "exploration",
+    "parent_exp": "flash_attn_baseline",
     "changes": {
-      "bottleneck_dim": "768",
-      "zero_init_residual_scale": "true",
-      "learned_pos_embed": "true"
+      "P_mean": "-5.0",
+      "blr": "2e-2"
     },
     "priority": 1,
     "status": "done",
-    "batch": 14,
-    "result": 0.4251,
-    "time_s": 19.2
+    "batch": 13,
+    "result": 11.7295,
+    "time_s": 14.2
   },
   {
-    "exp_id": "arch_triple",
-    "hypothesis": "Triple combo: residual scaling + skip connections + sandwich norm. All three address gradient flow.",
-    "category": "combination",
-    "parent_exp": "arch_residual_scale",
+    "exp_id": "lr_7e-4_pmean5",
+    "hypothesis": "LR 7e-4 with P_mean=-5 \u2014 maybe lower LR is better now.",
+    "category": "exploration",
+    "parent_exp": "flash_attn_baseline",
     "changes": {
-      "bottleneck_dim": "768",
-      "zero_init_residual_scale": "true",
-      "skip_connections": "true",
-      "sandwich_norm": "true"
+      "P_mean": "-5.0",
+      "blr": "7e-4"
     },
     "priority": 1,
     "status": "done",
-    "batch": 14,
-    "result": 0.709,
-    "time_s": 19.9
+    "batch": 13,
+    "result": 0.3156,
+    "time_s": 14.0
   }
 ]

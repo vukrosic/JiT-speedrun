@@ -10,19 +10,21 @@ import time
 QUEUE_FILE = "optimization/queue.json"
 LOG_FILE = "optimization/experiment_log.md"
 
-# Maximum training time per experiment in seconds (hard rule: 10s rapid iteration)
-MAX_TIME = 10
+# Maximum training time per experiment in seconds (hard rule: 5s rapid iteration)
+MAX_TIME = 5
 
 # Base config that all experiments inherit from (matching current best baseline)
 BASE_ARGS = [
     "--model", "JiT-B/16",
     "--img_size", "128",
     "--noise_scale", "1.0",
-    "--batch_size", "128",
-    "--blr", "2e-3",
+    "--bottleneck_dim", "768",
+    "--shared_adaln",
+    "--batch_size", "64",
+    "--blr", "1.5e-3",
     "--epochs", "100",
     "--warmup_epochs", "0",
-    "--max_time", str(MAX_TIME),
+    "--max_time", "5",
     "--class_num", "10",
     "--data_path", "data/imagenette2-320",
     "--num_workers", "4",
