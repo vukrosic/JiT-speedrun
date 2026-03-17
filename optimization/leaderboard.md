@@ -1,13 +1,23 @@
 # Leaderboard
 
-Active baseline:** batch18_blr3e-3 | loss: 0.2671 | 2026-03-17
+Active baseline:** b30_crazy_7 | loss: 0.2155 | 2026-03-17
 **Rule:** Same seed (0) always. 5s training. Any lower loss = better.
 **Total improvement:** 76.7% from baseline (1.3420 → 0.3122)
+**Full logs:** [all_history.csv](file:///root/workspace/JiT/optimization/all_history.csv)
 
 ## Historical Progression
 
 | Rank | Exp ID | Metric | Δ vs Previous | % Improvement | Key Change | Batch |
 |------|--------|--------|---------------|---------------|------------|-------|
+| 33 | b30_crazy_7 | 0.2155 | -0.0113 | 5.0% | Crazy: in_context_len=16, P_std=0.1, in_context_start=10, shared_adaln=true | 30 |
+| 32 | b26_exploit_1 | 0.2268 | -0.0008 | 0.4% | Exploit mutation: P_std=0.3 | 26 |
+| 31 | b25_wildcard_4 | 0.2276 | -0.0017 | 0.7% | Wildcard: learned_pos_embed=true, P_std=0.05, mlp_ratio=1.0 | 25 |
+| 30 | b24_wildcard_6 | 0.2293 | -0.0008 | 0.3% | Wildcard: learned_pos_embed=true, in_context_start=6 | 24 |
+| 29 | b21_wildcard_6 | 0.2301 | -0.0016 | 0.7% | Wildcard: learned_pos_embed=true, in_context_start=4 | 21 |
+| 28 | b21_exploit_0 | 0.2317 | -0.0012 | 0.5% | Exploit mutation: in_context_start=2 | 21 |
+| 27 | b20_wildcard_4 | 0.2329 | -0.0154 | 6.2% | Wildcard: mlp_ratio=2.0, P_mean=-2.0 | 20 |
+| 26 | b20_wildcard_2 | 0.2483 | -0.0128 | 4.9% | Wildcard: mlp_ratio=2.0, sandwich_norm=false | 20 |
+| 25 | b19_exploit_1 | 0.2611 | -0.0060 | 2.2% | Exploitation: Mutating ['P_std'] | 19 |
 | 24 | batch18_blr3e-3 | 0.2671 | -0.0280 | 9.5% | Pushing LR to 3e-3 with best noise schedule | 18 |
 | 23 | batch18_blr2e-3 | 0.2951 | -0.0062 | 2.1% | Pushing LR to 2e-3 with best noise schedule | 18 |
 | 22 | r15_pstd02 | 0.3013 | -0.0060 | 2.0% | Ultra-narrow noise focus (P_std=0.2) | 15 |

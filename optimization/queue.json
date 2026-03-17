@@ -1,92 +1,189 @@
 [
   {
-    "exp_id": "r17_pstd02",
-    "hypothesis": "Ultra-narrow noise focus (P_std=0.2)",
-    "category": "autonomous",
+    "exp_id": "b12_exploit_0",
+    "hypothesis": "Exploit mutation: proj_dropout=0.4",
+    "category": "exploit",
     "changes": {
-      "P_std": "0.2"
-    },
-    "priority": 1,
-    "status": "done",
-    "batch": 17,
-    "result": 0.3013
-  },
-  {
-    "exp_id": "batch18_pm-5.0_ps0.2",
-    "hypothesis": "Combining noise mean -5.0 with std 0.2",
-    "category": "autonomous",
-    "changes": {
-      "P_std": "0.2",
-      "P_mean": "-5.0"
-    },
-    "priority": 1,
-    "status": "done",
-    "batch": 18,
-    "result": 0.3108
-  },
-  {
-    "exp_id": "batch18_pm-5.0_ps0.1",
-    "hypothesis": "Combining noise mean -5.0 with std 0.1",
-    "category": "autonomous",
-    "changes": {
+      "blr": "3e-3",
       "P_std": "0.1",
-      "P_mean": "-5.0"
+      "P_mean": "-2.0",
+      "zero_init_residual_scale": "false",
+      "bottleneck_dim": "1536",
+      "in_context_start": "5",
+      "in_context_len": "64",
+      "learned_pos_embed": "false",
+      "proj_dropout": "0.4",
+      "attn_dropout": "0.1",
+      "skip_connections": "false",
+      "weight_decay": "1e-2"
     },
     "priority": 1,
     "status": "done",
-    "batch": 18,
-    "result": 0.3108
+    "batch": 12,
+    "result": 0.2344
   },
   {
-    "exp_id": "batch18_pm-8.0_ps0.2",
-    "hypothesis": "Combining noise mean -8.0 with std 0.2",
-    "category": "autonomous",
+    "exp_id": "b14_exploit_0",
+    "hypothesis": "Exploit mutation: skip_connections=false",
+    "category": "exploit",
     "changes": {
-      "P_std": "0.2",
-      "P_mean": "-8.0"
-    },
-    "priority": 1,
-    "status": "done",
-    "batch": 18,
-    "result": 0.3072
-  },
-  {
-    "exp_id": "batch18_pm-8.0_ps0.1",
-    "hypothesis": "Combining noise mean -8.0 with std 0.1",
-    "category": "autonomous",
-    "changes": {
+      "blr": "3e-3",
       "P_std": "0.1",
-      "P_mean": "-8.0"
+      "P_mean": "-2.0",
+      "zero_init_residual_scale": "false",
+      "bottleneck_dim": "1536",
+      "in_context_start": "5",
+      "in_context_len": "64",
+      "learned_pos_embed": "false",
+      "proj_dropout": "0.4",
+      "attn_dropout": "0.1",
+      "skip_connections": "false",
+      "weight_decay": "1e-2"
     },
     "priority": 1,
     "status": "done",
-    "batch": 18,
-    "result": 0.3072
+    "batch": 14,
+    "result": 0.2344
   },
   {
-    "exp_id": "batch18_blr2e-3",
-    "hypothesis": "Pushing LR to 2e-3 with best noise schedule",
-    "category": "autonomous",
+    "exp_id": "b14_crazy_1",
+    "hypothesis": "Crazy: grad_clip=2.0, label_drop_prob=0.5, in_context_len=32, shared_adaln=false",
+    "category": "crazy",
     "changes": {
-      "P_std": "0.2",
-      "blr": "2e-3"
+      "blr": "3e-3",
+      "P_std": "0.1",
+      "P_mean": "-2.0",
+      "zero_init_residual_scale": "false",
+      "bottleneck_dim": "1536",
+      "in_context_start": "5",
+      "in_context_len": "32",
+      "learned_pos_embed": "false",
+      "proj_dropout": "0.4",
+      "attn_dropout": "0.1",
+      "skip_connections": "false",
+      "weight_decay": "1e-2",
+      "grad_clip": "2.0",
+      "label_drop_prob": "0.5",
+      "shared_adaln": "false"
     },
     "priority": 1,
     "status": "done",
-    "batch": 18,
-    "result": 0.2951
+    "batch": 14,
+    "result": 0.236
   },
   {
-    "exp_id": "batch18_blr3e-3",
-    "hypothesis": "Pushing LR to 3e-3 with best noise schedule",
-    "category": "autonomous",
+    "exp_id": "b14_crazy_2",
+    "hypothesis": "Crazy: sandwich_norm=true, mlp_ratio=12.0, in_context_len=256, zero_init_residual_scale=false, P_std=1.5",
+    "category": "crazy",
     "changes": {
-      "P_std": "0.2",
-      "blr": "3e-3"
+      "blr": "3e-3",
+      "sandwich_norm": "true",
+      "mlp_ratio": "12.0",
+      "in_context_len": "256",
+      "zero_init_residual_scale": "false",
+      "P_std": "1.5"
     },
     "priority": 1,
     "status": "done",
-    "batch": 18,
-    "result": 0.2671
+    "batch": 14,
+    "result": 9.9915
+  },
+  {
+    "exp_id": "b14_crazy_3",
+    "hypothesis": "Crazy: weight_decay=1e-3, sandwich_norm=false, skip_connections=true, grad_clip=0.1, zero_init_residual_scale=false",
+    "category": "crazy",
+    "changes": {
+      "blr": "3e-3",
+      "P_std": "0.1",
+      "P_mean": "-2.0",
+      "zero_init_residual_scale": "false",
+      "bottleneck_dim": "1536",
+      "in_context_start": "5",
+      "in_context_len": "64",
+      "learned_pos_embed": "false",
+      "proj_dropout": "0.4",
+      "attn_dropout": "0.1",
+      "skip_connections": "true",
+      "weight_decay": "1e-3",
+      "sandwich_norm": "false",
+      "grad_clip": "0.1"
+    },
+    "priority": 1,
+    "status": "done",
+    "batch": 14,
+    "result": 0.2822
+  },
+  {
+    "exp_id": "b14_crazy_4",
+    "hypothesis": "Crazy: bottleneck_dim=1536, P_mean=-5.0, skip_connections=false, weight_decay=1e-4, P_std=1.5",
+    "category": "crazy",
+    "changes": {
+      "blr": "3e-3",
+      "bottleneck_dim": "1536",
+      "P_mean": "-5.0",
+      "skip_connections": "false",
+      "weight_decay": "1e-4",
+      "P_std": "1.5"
+    },
+    "priority": 1,
+    "status": "done",
+    "batch": 14,
+    "result": 0.3179
+  },
+  {
+    "exp_id": "b14_crazy_5",
+    "hypothesis": "Crazy: sandwich_norm=false, in_context_len=512, label_drop_prob=0.8, bottleneck_dim=16",
+    "category": "crazy",
+    "changes": {
+      "blr": "3e-3",
+      "sandwich_norm": "false",
+      "in_context_len": "512",
+      "label_drop_prob": "0.8",
+      "bottleneck_dim": "16"
+    },
+    "priority": 1,
+    "status": "pending",
+    "batch": 14
+  },
+  {
+    "exp_id": "b14_hypercrazy_6",
+    "hypothesis": "Hyper-Crazy: skip_connections=true, label_drop_prob=0.3, learned_pos_embed=true, bottleneck_dim=64, P_mean=-1.0, grad_clip=50.0, mlp_ratio=8.0, proj_dropout=0.4",
+    "category": "hypercrazy",
+    "changes": {
+      "blr": "3e-3",
+      "skip_connections": "true",
+      "label_drop_prob": "0.3",
+      "learned_pos_embed": "true",
+      "bottleneck_dim": "64",
+      "P_mean": "-1.0",
+      "grad_clip": "50.0",
+      "mlp_ratio": "8.0",
+      "proj_dropout": "0.4"
+    },
+    "priority": 1,
+    "status": "pending",
+    "batch": 14
+  },
+  {
+    "exp_id": "b14_hypercrazy_7",
+    "hypothesis": "Hyper-Crazy: sandwich_norm=false, zero_init_residual_scale=false, in_context_start=8, P_mean=-5.0, attn_dropout=0.0, mlp_ratio=0.25, weight_decay=0.1, skip_connections=false, grad_clip=0.5, label_drop_prob=0.8, proj_dropout=0.1",
+    "category": "hypercrazy",
+    "changes": {
+      "blr": "3e-3",
+      "sandwich_norm": "false",
+      "zero_init_residual_scale": "false",
+      "in_context_start": "8",
+      "P_mean": "-5.0",
+      "attn_dropout": "0.0",
+      "mlp_ratio": "0.25",
+      "weight_decay": "0.1",
+      "skip_connections": "false",
+      "grad_clip": "0.5",
+      "label_drop_prob": "0.8",
+      "proj_dropout": "0.1"
+    },
+    "priority": 1,
+    "status": "pending",
+    "batch": 14
   }
 ]
