@@ -211,12 +211,12 @@ class JiT(nn.Module):
         bottleneck_dim=128,
         in_context_len=32,
         in_context_start=8,
-        # Architecture innovations
-        learned_pos_embed=False,      # Learnable position embeddings instead of fixed sin-cos
-        skip_connections=False,        # U-Net style skip connections between symmetric layers
-        sandwich_norm=False,           # Extra norm after attention and FFN (Sub-LN / sandwich)
-        shared_adaln=False,            # Share adaLN modulation across all blocks
-        zero_init_residual_scale=False, # Learnable per-block residual scaling initialized to small value
+        learned_pos_embed=False,
+        skip_connections=False,
+        sandwich_norm=False,
+        shared_adaln=False,
+        zero_init_residual_scale=False,
+        JiT_branch='baseline',
     ):
         super().__init__()
         self.in_channels = in_channels
@@ -229,16 +229,31 @@ class JiT(nn.Module):
         self.in_context_start = in_context_start
         self.num_classes = num_classes
         self.skip_connections = skip_connections
+        self.learned_pos_embed = learned_pos_embed
+        self.sandwich_norm = sandwich_norm
+        self.shared_adaln = shared_adaln
+        self.zero_init_residual_scale = zero_init_residual_scale
+        self.JiT_branch = JiT_branch
+
+        # ConvBottleneck branch: replace proj1 with depthwise conv for local structure
+        if JiT_branch == 'conv_bottleneck':
+            self.patch_embed_conv = nn.Sequential(
+                nn.Conv2d(in_channels, bottleneck_dim, kernel_size=3, padding=1, groups=1, bias=False),
+                nn.SiLU(),
+                nn.Conv2d(bottleneck_dim, bottleneck_dim, kernel_size=patch_size, stride=patch_size, groups=bottleneck_dim, bias=False),
+                nn.BatchNorm2d(bottleneck_dim)
+            )
+            # Re-initialize embedder to accept conv output
+            self.x_embedder = nn.Linear(bottleneck_dim, hidden_size)
+        else:
+            self.x_embedder = BottleneckPatchEmbed(input_size, patch_size, in_channels, bottleneck_dim, hidden_size, bias=True)
 
         # time and class embed
         self.t_embedder = TimestepEmbedder(hidden_size)
         self.y_embedder = LabelEmbedder(num_classes, hidden_size)
 
-        # linear embed
-        self.x_embedder = BottleneckPatchEmbed(input_size, patch_size, in_channels, bottleneck_dim, hidden_size, bias=True)
-
         # positional embedding
-        num_patches = self.x_embedder.num_patches
+        num_patches = (input_size // patch_size) ** 2
         if learned_pos_embed:
             self.pos_embed = nn.Parameter(torch.zeros(1, num_patches, hidden_size), requires_grad=True)
             torch.nn.init.normal_(self.pos_embed, std=0.02)
@@ -317,15 +332,26 @@ class JiT(nn.Module):
         self.apply(_basic_init)
 
         # Initialize (and freeze) pos_embed by sin-cos embedding:
-        pos_embed = get_2d_sincos_pos_embed(self.pos_embed.shape[-1], int(self.x_embedder.num_patches ** 0.5))
+        grid_size = int(self.input_size // self.patch_size)
+        pos_embed = get_2d_sincos_pos_embed(self.pos_embed.shape[-1], grid_size)
         self.pos_embed.data.copy_(torch.from_numpy(pos_embed).float().unsqueeze(0))
 
-        # Initialize patch_embed like nn.Linear (instead of nn.Conv2d):
-        w1 = self.x_embedder.proj1.weight.data
-        nn.init.xavier_uniform_(w1.view([w1.shape[0], -1]))
-        w2 = self.x_embedder.proj2.weight.data
-        nn.init.xavier_uniform_(w2.view([w2.shape[0], -1]))
-        nn.init.constant_(self.x_embedder.proj2.bias, 0)
+        # Initialize patch_embed
+        if self.JiT_branch == 'conv_bottleneck':
+            for m in self.patch_embed_conv.modules():
+                if isinstance(m, nn.Conv2d):
+                    nn.init.xavier_uniform_(m.weight)
+                elif isinstance(m, nn.BatchNorm2d):
+                    nn.init.constant_(m.weight, 1)
+                    nn.init.constant_(m.bias, 0)
+            nn.init.xavier_uniform_(self.x_embedder.weight)
+            nn.init.constant_(self.x_embedder.bias, 0)
+        else:
+            w1 = self.x_embedder.proj1.weight.data
+            nn.init.xavier_uniform_(w1.view([w1.shape[0], -1]))
+            w2 = self.x_embedder.proj2.weight.data
+            nn.init.xavier_uniform_(w2.view([w2.shape[0], -1]))
+            nn.init.constant_(self.x_embedder.proj2.bias, 0)
 
         # Initialize label embedding table:
         nn.init.normal_(self.y_embedder.embedding_table.weight, std=0.02)
@@ -371,13 +397,23 @@ class JiT(nn.Module):
         c = t_emb + y_emb
 
         # forward JiT
-        x = self.x_embedder(x)
+        if self.JiT_branch == 'conv_bottleneck':
+            x = self.patch_embed_conv(x).flatten(2).transpose(1, 2)
+            x = self.x_embedder(x)
+        else:
+            x = self.x_embedder(x)
+            
         x += self.pos_embed
 
         depth = len(self.blocks)
         skip_features = []
 
         for i, block in enumerate(self.blocks):
+            # BlockSwap Branch: Group-based feature shuffling before attention
+            if self.JiT_branch == 'block_swap' and i % 2 == 1:
+                # Grouped shuffle: Split hidden dim and permute to force interaction
+                chunks = x.chunk(4, dim=-1)
+                x = torch.cat([chunks[1], chunks[2], chunks[3], chunks[0]], dim=-1)
             # in-context
             if self.in_context_len > 0 and i == self.in_context_start:
                 in_context_tokens = y_emb.unsqueeze(1).repeat(1, self.in_context_len, 1)

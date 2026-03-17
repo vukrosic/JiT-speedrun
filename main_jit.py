@@ -39,6 +39,7 @@ def get_args_parser():
     parser.add_argument('--sandwich_norm', action='store_true', help='Extra normalization after attention and FFN (Sub-LN)')
     parser.add_argument('--shared_adaln', action='store_true', help='Share adaLN modulation weights across all blocks')
     parser.add_argument('--zero_init_residual_scale', action='store_true', help='Learnable per-block residual scaling init to 0.1')
+    parser.add_argument('--JiT_branch', default='baseline', type=str, choices=['baseline', 'block_swap', 'conv_bottleneck'], help='Choose architectural modification branch')
 
     # time limit
     parser.add_argument('--max_time', type=float, default=0,

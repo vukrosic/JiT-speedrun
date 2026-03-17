@@ -24,6 +24,7 @@ class Denoiser(nn.Module):
             sandwich_norm=getattr(args, 'sandwich_norm', False),
             shared_adaln=getattr(args, 'shared_adaln', False),
             zero_init_residual_scale=getattr(args, 'zero_init_residual_scale', False),
+            JiT_branch=getattr(args, 'JiT_branch', 'baseline'),
         )
         self.img_size = args.img_size
         self.num_classes = args.class_num
