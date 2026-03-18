@@ -76,6 +76,7 @@ def get_args_parser():
     parser.add_argument('--P_std', default=0.8, type=float)
     parser.add_argument('--noise_scale', default=1.0, type=float)
     parser.add_argument('--t_eps', default=5e-2, type=float)
+    parser.add_argument('--loss_type', default='v', type=str, choices=['v', 'x', 'min_snr'], help='Loss parameterization: v (velocity), x (clean image), min_snr (v with min-SNR weighting)')
     parser.add_argument('--label_drop_prob', default=0.1, type=float)
 
     parser.add_argument('--seed', default=0, type=int)

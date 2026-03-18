@@ -1,52 +1,35 @@
 [
   {
-    "exp_id": "s93_blr_4e-3",
-    "hypothesis": "Re-sweep LR at depth=1+ns=0.01+no_incontext. Higher LR with max-speed model?",
-    "category": "re-sweep",
-    "parent_config": "leaderboard_best",
-    "changes": {"blr": "4e-3"},
-    "priority": 1,
-    "status": "pending",
-    "batch": 93
-  },
-  {
-    "exp_id": "s93_blr_2e-3",
-    "hypothesis": "Lower LR at new config. Task is very easy (ns=0.01) — maybe needs gentler optimization.",
-    "category": "re-sweep",
-    "parent_config": "leaderboard_best",
-    "changes": {"blr": "2e-3"},
-    "priority": 1,
-    "status": "pending",
-    "batch": 93
-  },
-  {
-    "exp_id": "s93_no_shared_adaln",
-    "hypothesis": "Disable shared_adaln. With depth=1 and no_incontext, the shared MLP is useless overhead.",
+    "exp_id": "s100_conv_bottleneck",
+    "hypothesis": "Conv front-end (F5-TTS). REJECTED: only 10 iters in 5s",
     "category": "architecture",
     "parent_config": "leaderboard_best",
-    "changes": {"shared_adaln": "false"},
+    "changes": {"JiT_branch": "conv_bottleneck"},
     "priority": 1,
-    "status": "pending",
-    "batch": 93
+    "status": "done",
+    "batch": 100,
+    "loss": 0.2251
   },
   {
-    "exp_id": "s93_no_learned_pos",
-    "hypothesis": "Use fixed sin-cos pos embed instead of learned. Fewer params to train in 5s.",
+    "exp_id": "s100_zero_init_res",
+    "hypothesis": "AdaLN-Zero residual scaling. REJECTED: hurts at depth=1",
     "category": "architecture",
     "parent_config": "leaderboard_best",
-    "changes": {"learned_pos_embed": "false"},
+    "changes": {"zero_init_residual_scale": "true"},
     "priority": 1,
-    "status": "pending",
-    "batch": 93
+    "status": "done",
+    "batch": 100,
+    "loss": 0.1192
   },
   {
-    "exp_id": "s93_mlp_ratio_0.5",
-    "hypothesis": "Smaller MLP at depth=1. At depth=12, mlp=0.5 was a near-miss. At depth=1 it saves even more compute.",
+    "exp_id": "s101_conv_bn_dim128",
+    "hypothesis": "Conv front-end dim=128. Still too slow (30 iters)",
     "category": "architecture",
     "parent_config": "leaderboard_best",
-    "changes": {"mlp_ratio": "0.5"},
+    "changes": {"JiT_branch": "conv_bottleneck", "bottleneck_dim": "128"},
     "priority": 1,
-    "status": "pending",
-    "batch": 93
+    "status": "done",
+    "batch": 101,
+    "loss": 0.1243
   }
 ]
