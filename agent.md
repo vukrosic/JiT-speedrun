@@ -158,3 +158,42 @@ Check if plan.md, leaderboard.md, experiment_log.md, queue.json, insights.md fol
 
 - **Checkpoint saving is disabled in the training code.**
 - Never save .pth, .pt, or .ckpt files during optimization experiments, unless user explicitly says to.
+
+---
+
+## 15. How To Optimize
+
+Run 5 experiments at a time, analyzing after each batch, then designing the next 5 based on what we learned. Each experiment trains the model for 5 seconds and measures final training loss. We keep a leaderboard of the best configs.
+
+### Key Strategy: Trade Capacity for Speed
+In 5-second training, iteration count matters more than model capacity. Every winning change has been about making the model faster:
+- **noise_scale=0.05**: Easier denoising task → faster convergence
+- **depth=1**: Single transformer layer → maximum iterations per second
+- **P_mean=-2.0**: Focus on easy (high-noise) timesteps → fast coarse learning
+- **no in-context tokens**: Fewer tokens per attention → faster iterations
+- **shared_adaln**: Fewer params → faster iterations
+
+## 16. Dashboard Setup
+
+### Running the Dashboard
+```bash
+python3 dashboard.py
+```
+This starts a Flask web server on port 5000 showing real-time experiment status, GPU info, leaderboard, and results.
+
+### Tunneling to Access Remotely
+If running on a remote server, use SSH tunneling:
+
+```bash
+# On your local machine:
+ssh -L 5000:localhost:5000 user@remote-server
+
+# Then open http://localhost:5000 in your browser
+```
+
+Or use VS Code's port forwarding
+### Dashboard Features
+- **GPU monitoring**: VRAM, utilization, temperature, power
+- **Live experiment tracking**: Current batch progress with real-time loss
+- **Leaderboard**: Top experiments ranked by loss
+- **Results history**: All experiments with loss and comparison to best

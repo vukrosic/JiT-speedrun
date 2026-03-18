@@ -1,52 +1,52 @@
 [
   {
-    "exp_id": "s92_mega_combo",
-    "hypothesis": "Stack ALL winners: P_mean=-2.0 + no_incontext + noise_scale=0.01. Each helped individually.",
-    "category": "combo",
+    "exp_id": "s93_blr_4e-3",
+    "hypothesis": "Re-sweep LR at depth=1+ns=0.01+no_incontext. Higher LR with max-speed model?",
+    "category": "re-sweep",
     "parent_config": "leaderboard_best",
-    "changes": {"in_context_len": "0", "noise_scale": "0.01"},
+    "changes": {"blr": "4e-3"},
     "priority": 1,
     "status": "pending",
-    "batch": 92
+    "batch": 93
   },
   {
-    "exp_id": "s92_Pmean_neg3",
-    "hypothesis": "Push P_mean to -3.0. At depth=1, -2.0 beat -1.5. Trend may continue.",
-    "category": "exploration",
+    "exp_id": "s93_blr_2e-3",
+    "hypothesis": "Lower LR at new config. Task is very easy (ns=0.01) — maybe needs gentler optimization.",
+    "category": "re-sweep",
     "parent_config": "leaderboard_best",
-    "changes": {"P_mean": "-3.0"},
+    "changes": {"blr": "2e-3"},
     "priority": 1,
     "status": "pending",
-    "batch": 92
+    "batch": 93
   },
   {
-    "exp_id": "s92_Pmean_neg4",
-    "hypothesis": "P_mean=-4.0 at depth=1. Very aggressive noise focus.",
-    "category": "exploration",
+    "exp_id": "s93_no_shared_adaln",
+    "hypothesis": "Disable shared_adaln. With depth=1 and no_incontext, the shared MLP is useless overhead.",
+    "category": "architecture",
     "parent_config": "leaderboard_best",
-    "changes": {"P_mean": "-4.0"},
+    "changes": {"shared_adaln": "false"},
     "priority": 1,
     "status": "pending",
-    "batch": 92
+    "batch": 93
   },
   {
-    "exp_id": "s92_Pmean_neg25",
-    "hypothesis": "Fine-tune: P_mean=-2.5 between -2.0 and -3.0.",
-    "category": "refine",
+    "exp_id": "s93_no_learned_pos",
+    "hypothesis": "Use fixed sin-cos pos embed instead of learned. Fewer params to train in 5s.",
+    "category": "architecture",
     "parent_config": "leaderboard_best",
-    "changes": {"P_mean": "-2.5"},
+    "changes": {"learned_pos_embed": "false"},
     "priority": 1,
     "status": "pending",
-    "batch": 92
+    "batch": 93
   },
   {
-    "exp_id": "s92_Pmean_neg2_ns001",
-    "hypothesis": "P_mean=-2.0 + noise_scale=0.01. Both improved individually — test interaction.",
-    "category": "combo",
+    "exp_id": "s93_mlp_ratio_0.5",
+    "hypothesis": "Smaller MLP at depth=1. At depth=12, mlp=0.5 was a near-miss. At depth=1 it saves even more compute.",
+    "category": "architecture",
     "parent_config": "leaderboard_best",
-    "changes": {"noise_scale": "0.01"},
+    "changes": {"mlp_ratio": "0.5"},
     "priority": 1,
     "status": "pending",
-    "batch": 92
+    "batch": 93
   }
 ]

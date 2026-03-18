@@ -4,7 +4,7 @@
   "current_config": {
     "model": "JiT-B/16",
     "img_size": "128",
-    "noise_scale": "0.05",
+    "noise_scale": "0.01",
     "depth": "1",
     "bottleneck_dim": "768",
     "shared_adaln": "true",
@@ -20,7 +20,7 @@
     "log_freq": "5",
     "seed": "0",
     "mlp_ratio": "1.0",
-    "in_context_len": "16",
+    "in_context_len": "0",
     "in_context_start": "0",
     "learned_pos_embed": "true",
     "P_mean": "-2.0",

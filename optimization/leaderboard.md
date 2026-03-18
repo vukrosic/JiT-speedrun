@@ -1,14 +1,15 @@
 # Leaderboard
 
-Active baseline:** s91_Pmean_neg2 | loss: 0.1156 | 2026-03-18
+Active baseline:** s92_mega_combo | loss: 0.1150 | 2026-03-18
 **Rule:** Same seed (0) always. 5s training. Any lower loss = better.
-**Total improvement:** 91.4% from baseline (1.3420 → 0.1156)
+**Total improvement:** 91.4% from baseline (1.3420 → 0.1150)
 **Full logs:** [all_history.csv](file:///root/workspace/JiT/optimization/all_history.csv)
 
 ## Historical Progression
 
 | Rank | Exp ID | Metric | Δ vs Previous | % Improvement | Key Change | Batch |
 |------|--------|--------|---------------|---------------|------------|-------|
+| 52 | s92_mega_combo | 0.1150 | -0.0006 | 0.5% | combo: P_mean=-2.0 + no_incontext + ns=0.01 | 92 |
 | 51 | s91_Pmean_neg2 | 0.1156 | -0.0036 | 3.0% | P_mean=-2.0 at depth=1 (interaction!) | 91 |
 | 50 | s90_d1_ns005 | 0.1192 | -0.0013 | 1.1% | noise_scale=0.05 at depth=1 | 90 |
 | 49 | s89_depth1 | 0.1205 | -0.0036 | 2.9% | depth=1 (single layer! max iterations) | 89 |
