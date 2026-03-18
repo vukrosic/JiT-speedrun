@@ -1,14 +1,28 @@
 # Leaderboard
 
-Active baseline:** s25_P_std_0.05 | loss: 0.2021 | 2026-03-17
+Active baseline:** s91_Pmean_neg2 | loss: 0.1156 | 2026-03-18
 **Rule:** Same seed (0) always. 5s training. Any lower loss = better.
-**Total improvement:** 84.9% from baseline (1.3420 → 0.2021)
+**Total improvement:** 91.4% from baseline (1.3420 → 0.1156)
 **Full logs:** [all_history.csv](file:///root/workspace/JiT/optimization/all_history.csv)
 
 ## Historical Progression
 
 | Rank | Exp ID | Metric | Δ vs Previous | % Improvement | Key Change | Batch |
 |------|--------|--------|---------------|---------------|------------|-------|
+| 51 | s91_Pmean_neg2 | 0.1156 | -0.0036 | 3.0% | P_mean=-2.0 at depth=1 (interaction!) | 91 |
+| 50 | s90_d1_ns005 | 0.1192 | -0.0013 | 1.1% | noise_scale=0.05 at depth=1 | 90 |
+| 49 | s89_depth1 | 0.1205 | -0.0036 | 2.9% | depth=1 (single layer! max iterations) | 89 |
+| 48 | s88_depth3 | 0.1241 | -0.0098 | 7.3% | depth=3 (4x faster, sweet spot for 5s) | 88 |
+| 47 | s88_depth2 | 0.1246 | -0.0093 | 6.9% | depth=2 (nearly as good as 3) | 88 |
+| 46 | s87_depth6 | 0.1339 | -0.0168 | 11.1% | depth=6 (half layers = 2x iterations in 5s) | 87 |
+| 45 | s85_noise_scale_0.1 | 0.1507 | -0.0003 | 0.2% | noise_scale=0.1 (sharp valley optimum) | 85 |
+| 44 | s85_noise_scale_0.12 | 0.1510 | -0.0112 | 6.9% | noise_scale=0.12 | 85 |
+| 43 | s84_noise_scale_0.15 | 0.1622 | -0.0013 | 0.8% | noise_scale=0.15 | 84 |
+| 42 | s84_noise_scale_0.2 | 0.1635 | -0.0016 | 1.0% | noise_scale=0.2 | 84 |
+| 41 | s84_noise_scale_0.25 | 0.1653 | -0.0018 | 1.1% | noise_scale=0.25 | 84 |
+| 40 | r72_noise_scale_0.5000 | 0.1686 | -0.0066 | 3.8% | noise_scale=0.5000 | 72 |
+| 39 | r71_noise_scale_0.6000 | 0.1752 | -0.0213 | 10.8% | noise_scale=0.6000 | 71 |
+| 38 | s70_noise_scale_0.8 | 0.1965 | -0.0056 | 2.8% | noise_scale=0.8 | 70 |
 | 37 | s25_P_std_0.05 | 0.2021 | -0.0006 | 0.3% | P_std=0.05 | 25 |
 | 36 | s15_P_std_0.08 | 0.2027 | -0.0006 | 0.3% | P_std=0.08 | 15 |
 | 35 | s10_label_drop_prob_0.15 | 0.2033 | -0.0071 | 3.4% | label_drop_prob=0.15 | 10 |

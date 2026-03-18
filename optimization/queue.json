@@ -1,75 +1,52 @@
 [
   {
-    "exp_id": "s69_mlp_ratio_0.5",
-    "hypothesis": "Sweep mlp_ratio=0.5 (current=1.0). MLP expansion ratio sweep",
-    "category": "sweep",
+    "exp_id": "s92_mega_combo",
+    "hypothesis": "Stack ALL winners: P_mean=-2.0 + no_incontext + noise_scale=0.01. Each helped individually.",
+    "category": "combo",
     "parent_config": "leaderboard_best",
-    "changes": {
-      "mlp_ratio": "0.5"
-    },
-    "axis": "mlp_ratio",
-    "value": "0.5",
-    "priority": 1,
-    "status": "done",
-    "batch": 69,
-    "result": 0.2027
-  },
-  {
-    "exp_id": "s69_mlp_ratio_0.75",
-    "hypothesis": "Sweep mlp_ratio=0.75 (current=1.0). MLP expansion ratio sweep",
-    "category": "sweep",
-    "parent_config": "leaderboard_best",
-    "changes": {
-      "mlp_ratio": "0.75"
-    },
-    "axis": "mlp_ratio",
-    "value": "0.75",
-    "priority": 1,
-    "status": "done",
-    "batch": 69,
-    "result": 0.2049
-  },
-  {
-    "exp_id": "s69_mlp_ratio_1.5",
-    "hypothesis": "Sweep mlp_ratio=1.5 (current=1.0). MLP expansion ratio sweep",
-    "category": "sweep",
-    "parent_config": "leaderboard_best",
-    "changes": {
-      "mlp_ratio": "1.5"
-    },
-    "axis": "mlp_ratio",
-    "value": "1.5",
-    "priority": 1,
-    "status": "done",
-    "batch": 69,
-    "result": 0.2091
-  },
-  {
-    "exp_id": "s69_mlp_ratio_2.0",
-    "hypothesis": "Sweep mlp_ratio=2.0 (current=1.0). MLP expansion ratio sweep",
-    "category": "sweep",
-    "parent_config": "leaderboard_best",
-    "changes": {
-      "mlp_ratio": "2.0"
-    },
-    "axis": "mlp_ratio",
-    "value": "2.0",
+    "changes": {"in_context_len": "0", "noise_scale": "0.01"},
     "priority": 1,
     "status": "pending",
-    "batch": 69
+    "batch": 92
   },
   {
-    "exp_id": "s69_mlp_ratio_3.0",
-    "hypothesis": "Sweep mlp_ratio=3.0 (current=1.0). MLP expansion ratio sweep",
-    "category": "sweep",
+    "exp_id": "s92_Pmean_neg3",
+    "hypothesis": "Push P_mean to -3.0. At depth=1, -2.0 beat -1.5. Trend may continue.",
+    "category": "exploration",
     "parent_config": "leaderboard_best",
-    "changes": {
-      "mlp_ratio": "3.0"
-    },
-    "axis": "mlp_ratio",
-    "value": "3.0",
+    "changes": {"P_mean": "-3.0"},
     "priority": 1,
     "status": "pending",
-    "batch": 69
+    "batch": 92
+  },
+  {
+    "exp_id": "s92_Pmean_neg4",
+    "hypothesis": "P_mean=-4.0 at depth=1. Very aggressive noise focus.",
+    "category": "exploration",
+    "parent_config": "leaderboard_best",
+    "changes": {"P_mean": "-4.0"},
+    "priority": 1,
+    "status": "pending",
+    "batch": 92
+  },
+  {
+    "exp_id": "s92_Pmean_neg25",
+    "hypothesis": "Fine-tune: P_mean=-2.5 between -2.0 and -3.0.",
+    "category": "refine",
+    "parent_config": "leaderboard_best",
+    "changes": {"P_mean": "-2.5"},
+    "priority": 1,
+    "status": "pending",
+    "batch": 92
+  },
+  {
+    "exp_id": "s92_Pmean_neg2_ns001",
+    "hypothesis": "P_mean=-2.0 + noise_scale=0.01. Both improved individually — test interaction.",
+    "category": "combo",
+    "parent_config": "leaderboard_best",
+    "changes": {"noise_scale": "0.01"},
+    "priority": 1,
+    "status": "pending",
+    "batch": 92
   }
 ]

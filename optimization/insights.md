@@ -1,26 +1,28 @@
 # Optimization Insights (5s regime)
 
-## What Works
-- **Lower P_mean** (noise schedule): Biggest single lever. -0.8→-5.0 took loss from 0.5610 to 0.3122. In 5s, the model can only learn coarse structure — biasing toward high-noise timesteps aligns training with what's achievable.
-- **Higher LR**: 1.5e-3 optimal (vs 2e-3 default). Need fast convergence in few steps.
-- **No bottleneck (bn768)**: Removing patch embedding compression helps universally.
-- **Shared adaLN**: Saves params with no quality loss. Fewer params = faster iters.
-- **Smaller batch (64)**: More gradient steps beats larger batches in short training.
+## Latest Analysis (Batch 91 — 2026-03-18)
 
-## What Doesn't Work
-- **Weight decay**: Zero effect at 5s. Too few steps for regularization to matter. BANLIST.
-- **P_std > 0.8**: Wider noise distribution hurts. Keep concentrated.
-- **Skip connections**: Adds compute overhead, fewer iters in 5s.
-- **bs < 32**: Too noisy per step.
-- **mlp_ratio changes**: Neither 2x nor 8x helped.
+**Current best: 0.1156 (depth=1, P_mean=-2.0) | Total improvement: 91.4% from 1.3420**
 
-## Exhausted Axes
-- LR (peak at 1.5e-3)
-- Batch size (64 optimal)
-- P_mean (plateau at -2.5 to -5, locked at -5)
-- Weight decay (no effect)
-- Bottleneck dim (768 optimal)
-- Architecture flags (shared_adaln best, others neutral/worse)
+### Batch 91 Results
+```
+P_mean=-2.0:              0.1156  << NEW BEST (interaction: shifted from -1.5 at depth=12 to -2.0 at depth=1)
+noise_scale=0.01:         0.1184  (slight improvement, ns keeps going lower at depth=1)
+noise_scale=0.02:         0.1186
+ns=0.05+no_incontext:     0.1187  (combo works but small)
+P_mean=-1.0:              0.1355  (much worse)
+```
 
-## Open
-- Grad clipping, label dropout, in-context params, P_std narrower
+### Conclusion
+**P_mean shifts with depth!** At depth=12, P_mean=-1.5 was optimal. At depth=1, P_mean=-2.0 is better. This makes sense: the single-layer model benefits from focusing on higher-noise timesteps even more aggressively — it can only learn coarse structure anyway, so concentrate on the noisiest samples.
+
+### Next Steps — combine ALL improvements
+1. P_mean=-2.0 + noise_scale=0.01 + no_incontext (stack all winners)
+2. Push P_mean lower (-3.0, -4.0) at depth=1
+3. With P_mean=-2.0, re-sweep noise_scale
+4. Try P_mean=-2.0 + bs=48 (slightly more steps)
+
+---
+
+## Progression Summary
+1.3420 → 0.6815 (LR) → 0.3122 (P_mean) → 0.2021 (noise schedule) → 0.1507 (noise_scale) → 0.1241 (depth=3) → 0.1205 (depth=1) → 0.1192 (ns=0.05) → 0.1156 (P_mean=-2.0)

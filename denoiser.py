@@ -9,7 +9,7 @@ class Denoiser(nn.Module):
         args
     ):
         super().__init__()
-        self.net = JiT_models[args.model](
+        model_kwargs = dict(
             input_size=args.img_size,
             in_channels=3,
             num_classes=args.class_num,
@@ -26,6 +26,9 @@ class Denoiser(nn.Module):
             zero_init_residual_scale=getattr(args, 'zero_init_residual_scale', False),
             JiT_branch=getattr(args, 'JiT_branch', 'baseline'),
         )
+        if getattr(args, 'depth', 0) > 0:
+            model_kwargs['depth'] = args.depth
+        self.net = JiT_models[args.model](**model_kwargs)
         self.img_size = args.img_size
         self.num_classes = args.class_num
 

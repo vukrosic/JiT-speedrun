@@ -30,6 +30,7 @@ def get_args_parser():
     parser.add_argument('--attn_dropout', type=float, default=0.0, help='Attention dropout rate')
     parser.add_argument('--proj_dropout', type=float, default=0.0, help='Projection dropout rate')
     parser.add_argument('--mlp_ratio', type=float, default=4.0, help='MLP hidden dim ratio')
+    parser.add_argument('--depth', type=int, default=0, help='Override model depth (0 = use model default)')
     parser.add_argument('--bottleneck_dim', type=int, default=128, help='Patch embed bottleneck dim')
     parser.add_argument('--in_context_len', type=int, default=32, help='Number of in-context class tokens')
     parser.add_argument('--in_context_start', type=int, default=4, help='Layer index where in-context tokens are injected')
@@ -63,6 +64,10 @@ def get_args_parser():
                         help='Weight decay (default: 0.0)')
     parser.add_argument('--grad_clip', type=float, default=0.0,
                         help='Gradient clipping max norm (0 = disabled)')
+    parser.add_argument('--beta1', type=float, default=0.9,
+                        help='Adam beta1')
+    parser.add_argument('--beta2', type=float, default=0.95,
+                        help='Adam beta2')
     parser.add_argument('--ema_decay1', type=float, default=0.9999,
                         help='The first ema to track. Use the first ema for sampling by default.')
     parser.add_argument('--ema_decay2', type=float, default=0.9996,
@@ -204,7 +209,7 @@ def main(args):
 
     # Set up optimizer with weight decay adjustment for bias and norm layers
     param_groups = misc.add_weight_decay(model_without_ddp, args.weight_decay)
-    optimizer = torch.optim.AdamW(param_groups, lr=args.lr, betas=(0.9, 0.95))
+    optimizer = torch.optim.AdamW(param_groups, lr=args.lr, betas=(args.beta1, args.beta2))
     print(optimizer)
 
     # Resume from checkpoint if provided
